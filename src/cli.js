@@ -18,13 +18,7 @@ import { traceCommand } from './commands/trace.js';
 import { impactCommand } from './commands/impact.js';
 import { regressionCommand } from './commands/regression.js';
 import { agentCommand } from './commands/agent.js';
-
-const BANNER = `
-${chalk.bold.cyan('╔══════════════════════════════════════════════════════════╗')}
-${chalk.bold.cyan('║')}  ${chalk.bold.white('VeriSpec')} ${chalk.dim('— Spec-Driven Quality Engineering')}           ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('║')}  ${chalk.dim('Turn specs into traceable, executable test evidence.')}   ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('╚══════════════════════════════════════════════════════════╝')}
-`;
+import { getBannerText } from './utils/animation.js';
 
 export function createCli() {
   const program = new Command();
@@ -32,8 +26,8 @@ export function createCli() {
   program
     .name('verispec')
     .description('VeriSpec — Spec-Driven Quality Engineering Framework')
-    .version('0.1.0')
-    .addHelpText('before', BANNER);
+    .version('0.1.5')
+    .addHelpText('before', getBannerText('0.1.5'));
 
   // ─────────────────────────────────────────────
   // Core Workflow Commands

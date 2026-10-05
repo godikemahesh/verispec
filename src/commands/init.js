@@ -30,6 +30,7 @@ import {
 } from '../utils/file-utils.js';
 import { logger } from '../utils/logger.js';
 import { installAgentBindings } from '../agents/agent-installer.js';
+import { playInitAnimation, renderSuccessHero } from '../utils/animation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,7 +38,7 @@ const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 
 export async function initCommand(options) {
   const cwd = process.cwd();
-  logger.banner('VeriSpec Initialization');
+  await playInitAnimation({ version: '0.1.5' });
 
   if (isInitialized(cwd) && !options.force) {
     logger.warn('VeriSpec is already initialized in this project.');
@@ -292,24 +293,11 @@ export async function initCommand(options) {
     const installedAgents = await installAgentBindings(selectedAgent, cwd);
     agentSpinner.succeed(`Configured coding agents: ${installedAgents.join(', ')}`);
 
-    // 10. Summary Banner
-    console.log('');
-    console.log(chalk.bold.green('╔══════════════════════════════════════════════════════════╗'));
-    console.log(chalk.bold.green('║') + '  ' + chalk.bold.white('VeriSpec Initialized Successfully!') + '                     ' + chalk.bold.green('║'));
-    console.log(chalk.bold.green('╚══════════════════════════════════════════════════════════╝'));
-    console.log('');
-    console.log(chalk.bold('Continuous Reporting Active:'));
-    console.log(`  ${chalk.cyan('Dashboard:')}  .verispec/reports/latest/report.html (open in browser)`);
-    console.log(`  ${chalk.cyan('Summary:')}    .verispec/reports/latest/report.md`);
-    console.log(`  ${chalk.cyan('Live Data:')}  .verispec/reports/latest/results.json`);
-    console.log('');
-    console.log(chalk.bold('Next Steps:'));
-    console.log(`  1. Review testing policy:     ${chalk.cyan('verispec rulebook')}`);
-    console.log(`  2. Generate test strategy:    ${chalk.cyan('verispec strategy')}`);
-    console.log(`  3. Generate test cases:       ${chalk.cyan('verispec cases')}`);
-    console.log(`  4. Implement native tests:    ${chalk.cyan('verispec implement')}`);
-    console.log(`  5. Run tests:                 ${chalk.cyan('verispec run')} or ${chalk.cyan('pytest')}`);
-    console.log('');
+    // 10. Summary Banner & Futuristic Hero Card
+    renderSuccessHero({
+      version: '0.1.5',
+      agents: installedAgents,
+    });
 
   } catch (err) {
     spinner.fail(`Initialization failed: ${err.message}`);
