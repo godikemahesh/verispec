@@ -24,7 +24,9 @@ test('installAgentBindings creates files for all agents in temporary folder', as
 
     // Check Antigravity
     assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'rules', 'verispec.md')), 'Antigravity rule should exist');
-    assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'verispec', 'SKILL.md')), 'Antigravity skill should exist');
+    assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'verispec', 'SKILL.md')), 'Antigravity master skill should exist');
+    assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'verispec-strategy', 'SKILL.md')), 'Antigravity strategy skill should exist');
+    assert.ok(fs.existsSync(path.join(tmpDir, '.agents', 'skills', 'verispec-cases', 'SKILL.md')), 'Antigravity cases skill should exist');
 
     // Check Windsurf
     assert.ok(fs.existsSync(path.join(tmpDir, '.windsurfrules')), '.windsurfrules should exist');

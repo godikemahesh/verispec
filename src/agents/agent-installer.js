@@ -336,56 +336,193 @@ When the user types any of the following slash commands in the chatbox, execute 
  */
 async function installAntigravityBindings(cwd) {
   const agentsRulesDir = path.resolve(cwd, '.agents', 'rules');
-  const skillDir = path.resolve(cwd, '.agents', 'skills', 'verispec');
+  const baseSkillsDir = path.resolve(cwd, '.agents', 'skills');
   await fs.ensureDir(agentsRulesDir);
-  await fs.ensureDir(skillDir);
+  await fs.ensureDir(baseSkillsDir);
 
   const ruleContent = `# VeriSpec Quality Engineering Workspace Rule
 
 This repository uses the VeriSpec Quality Engineering framework.
 
-## Lifecycle & Commands
-1. \`verispec rulebook\` — Permanent testing policy and quality gates (\`.verispec/rulebook.md\`)
-2. \`verispec strategy\` — Risk-based test strategy (\`.verispec/strategy.md\`)
-3. \`verispec cases\` — Structured test cases with stable IDs (\`.verispec/cases/\`)
-4. \`verispec implement\` — Idiomatic native test generation with continuous reporter hooks
-5. \`verispec run\` — Flexible runner orchestration (by tier, case, or requirement)
-6. \`verispec analyze\` — AI failure diagnosis and defect card generation
-7. \`verispec trace\` — Bidirectional requirement-to-evidence matrix
-8. \`verispec impact\` — Change impact analysis from Git diffs
-9. \`verispec regression\` — Targeted regression test selection
+## Lifecycle & Slash Commands
+1. \`/verispec-rulebook\` — Permanent testing policy and quality gates (\`.verispec/rulebook.md\`)
+2. \`/verispec-strategy\` — Risk-based test strategy with stable REQ-* IDs (\`.verispec/strategy.md\`)
+3. \`/verispec-cases\` — Structured test cases with deterministic TC-* IDs (\`.verispec/cases/\`)
+4. \`/verispec-implement\` — Idiomatic native test generation with continuous reporter hooks
+5. \`/verispec-run\` — Flexible runner orchestration (by tier, case, or requirement)
+6. \`/verispec-analyze\` — AI failure diagnosis and 5-tier defect/diagnostic card generation
+7. \`/verispec-trace\` — Bidirectional requirement-to-evidence matrix
+8. \`/verispec-impact\` — Change impact analysis from Git diffs
+9. \`/verispec-regression\` — Targeted regression test selection
 
 ## Invariant Rules
 - Preserve ID chains: \`REQ-xxx\` -> \`TC-xxx\` -> \`test_xxx()\` -> \`BUG-xxx\`.
 - All tests must be native, runnable independently via standard runners (\`pytest\`, \`playwright\`).
-- Reports update continuously; do not attempt to run a separate report command.
+- Reports update continuously in \`.verispec/reports/latest/\`; do not attempt to run a separate report command.
 `;
 
   await fs.writeFile(path.join(agentsRulesDir, 'verispec.md'), ruleContent, 'utf-8');
 
-  const skillContent = `---
+  // Master overview skill
+  const masterSkillDir = path.join(baseSkillsDir, 'verispec');
+  await fs.ensureDir(masterSkillDir);
+  const masterSkillContent = `---
 name: verispec
-description: Spec-Driven Quality Engineering skill. Use to create test strategies, test cases, executable tests, analyze failures, and perform change impact analysis.
+description: Spec-Driven Quality Engineering framework overview. Use to explore the complete testing lifecycle.
 ---
 
 # VeriSpec Quality Engineering Skill
 
-Use this skill when designing, implementing, executing, or analyzing tests for features specified in \`spec.md\` or for brownfield projects.
+Use this skill to guide the end-to-end quality engineering lifecycle for features specified in \`spec.md\` or brownfield codebases.
 
-## Workflow
-
-1. Check if \`.verispec/config.yaml\` exists. If not, initialize with \`verispec init\`.
-2. Inspect or update \`.verispec/rulebook.md\` to align with project quality gates.
-3. Review \`spec.md\` and run \`verispec strategy\` to allocate test tiers based on risk.
-4. Run \`verispec cases\` to generate test cases with stable IDs in \`.verispec/cases/\`.
-5. Run \`verispec implement\` to generate executable test scripts in \`tests/\`.
-6. Run tests with \`verispec run\` or native tools (\`pytest\`, \`playwright\`).
-7. Open \`.verispec/reports/latest/report.html\` to view the live dashboard.
-8. If failures occur, run \`verispec analyze\` to diagnose root causes and generate defect cards.
-9. When code changes, run \`verispec impact\` and \`verispec regression\` for targeted retesting.
+## Available Slash Commands
+- \`/verispec-rulebook\`: Define project testing policy and quality gates
+- \`/verispec-strategy\`: Analyze spec.md and derive risk-weighted test tiers
+- \`/verispec-cases\`: Generate structured test cases with stable TC-* IDs
+- \`/verispec-implement\`: Write native executable tests with metadata decorators
+- \`/verispec-run\`: Execute tests and stream live results
+- \`/verispec-analyze\`: 5-tier failure triage and root cause classification
+- \`/verispec-trace\`: Generate bidirectional requirement-to-evidence matrix
+- \`/verispec-impact\`: Calculate blast radius from Git changes
+- \`/verispec-regression\`: Select targeted regression test suite
 `;
+  await fs.writeFile(path.join(masterSkillDir, 'SKILL.md'), masterSkillContent, 'utf-8');
 
-  await fs.writeFile(path.join(skillDir, 'SKILL.md'), skillContent, 'utf-8');
+  // Individual workflow skills (registered as /verispec-<step> slash commands)
+  const skills = [
+    {
+      id: 'verispec-rulebook',
+      name: 'verispec-rulebook',
+      description: 'Define or review project testing rules, supported test types, tools, coding standards, and quality gates in .verispec/rulebook.md.',
+      instructions: `# VeriSpec Quality Rules & Testing Constitution
+
+When invoked with \`/verispec-rulebook\`:
+1. Check if \`.verispec/rulebook.md\` already exists.
+2. If it does not exist, run \`verispec rulebook\` to generate the constitution from project configuration.
+3. Review and enforce quality gates (coverage minimums, critical requirement zero-failure rule, mandated test levels).
+`,
+    },
+    {
+      id: 'verispec-strategy',
+      name: 'verispec-strategy',
+      description: 'Analyze spec.md or codebase to derive risk-based test strategy and stable REQ-* IDs in .verispec/strategy.md.',
+      instructions: `# VeriSpec Test Strategy
+
+When invoked with \`/verispec-strategy\`:
+1. Read the feature specification in \`spec.md\` and review testing policies in \`.verispec/rulebook.md\`.
+2. Extract all functional requirements and assign stable, deterministic IDs (\`REQ-<FEATURE>-<SEQ>\`).
+3. Assess business risk and technical complexity (Critical, High, Medium, Low).
+4. Run \`verispec strategy\` or generate \`.verispec/strategy.md\` mapping each requirement to appropriate test tiers (Unit, API, Integration, E2E, Security).
+`,
+    },
+    {
+      id: 'verispec-cases',
+      name: 'verispec-cases',
+      description: 'Generate structured test cases with stable TC-* IDs across functional, negative, boundary, and security in .verispec/cases/.',
+      instructions: `# VeriSpec Test Cases
+
+When invoked with \`/verispec-cases\`:
+1. Read \`.verispec/strategy.md\` to review requirements and assigned test tiers.
+2. Run \`verispec cases\` or generate markdown test case specifications into \`.verispec/cases/\`:
+   - \`functional.md\`: Core user journeys, happy paths, state transitions.
+   - \`negative.md\`: Invalid payloads, authentication/authorization failures, missing fields.
+   - \`boundary.md\`: Max string lengths, zero/negative quantities, concurrency limits.
+   - \`security.md\`: RBAC privilege escalation, injection, unauthorized access.
+3. Ensure every test case has a deterministic ID (\`TC-<FEATURE>-<SEQ>\`) referencing its parent \`REQ-*\`.
+`,
+    },
+    {
+      id: 'verispec-implement',
+      name: 'verispec-implement',
+      description: 'Translate approved test cases into native executable test scripts in tests/ with VeriSpec metadata decorators.',
+      instructions: `# VeriSpec Test Implementation
+
+When invoked with \`/verispec-implement\`:
+1. Read approved test scenarios from \`.verispec/cases/*.md\`.
+2. Generate clean, idiomatic native test code in the project's native runner:
+   - Python: \`pytest\` tests in \`tests/unit/\`, \`tests/api/\`, \`tests/integration/\`, \`tests/e2e/\` with \`@pytest.mark.verispec(id="TC-...", req="REQ-...")\`.
+   - TypeScript/JavaScript: \`Playwright\` specs in \`tests/e2e/\` or \`Jest\`/\`Vitest\` with VeriSpec annotations.
+3. Ensure all tests can be executed directly by native CLI tools without vendor lock-in.
+`,
+    },
+    {
+      id: 'verispec-run',
+      name: 'verispec-run',
+      description: 'Execute test suites and stream results continuously to the live HTML dashboard in .verispec/reports/latest/.',
+      instructions: `# VeriSpec Test Execution
+
+When invoked with \`/verispec-run\`:
+1. Execute tests using \`verispec run\` or target specific tiers (\`verispec run --tier unit\`).
+2. Execution results stream continuously into \`.verispec/reports/latest/results.json\` and \`report.html\`.
+3. Provide execution summaries including total passed, failed, duration, and test run ID (\`RUN-YYYYMMDD-SEQ\`).
+`,
+    },
+    {
+      id: 'verispec-analyze',
+      name: 'verispec-analyze',
+      description: 'Perform 5-tier failure triage on test runs and generate structured defect or diagnostic cards in .verispec/defects/.',
+      instructions: `# VeriSpec Failure Analysis & Defect Triage
+
+When invoked with \`/verispec-analyze\`:
+1. Read test failures from \`.verispec/reports/latest/results.json\`.
+2. Inspect application code, stack traces, and test assertions to classify the failure into one of 5 tiers:
+   - PRODUCT DEFECT: Bug in application code -> draft \`.verispec/defects/BUG-<ID>.md\`
+   - TEST DEFECT: Flaky test, incorrect assertion -> draft \`DIAG-<ID>.md\`
+   - ENVIRONMENT ISSUE: Timeout, network down, DB connection -> draft \`DIAG-<ID>.md\`
+   - TEST DATA PROBLEM: Stale seed data, foreign key conflict -> draft \`DIAG-<ID>.md\`
+   - SPEC DRIFT: Intended feature change, spec needs update -> draft \`DIAG-<ID>.md\`
+`,
+    },
+    {
+      id: 'verispec-trace',
+      name: 'verispec-trace',
+      description: 'Generate bidirectional requirement-to-evidence matrix in .verispec/traceability.md.',
+      instructions: `# VeriSpec Bidirectional Traceability
+
+When invoked with \`/verispec-trace\`:
+1. Run \`verispec trace\` to compile the end-to-end traceability matrix.
+2. Verify all requirements (\`REQ-*\`) link to test cases (\`TC-*\`), executable test files, and latest execution evidence.
+3. Highlight coverage gaps (uncovered requirements) and compliance status.
+`,
+    },
+    {
+      id: 'verispec-impact',
+      name: 'verispec-impact',
+      description: 'Analyze Git diffs against requirements and test registry to calculate blast radius and affected tests.',
+      instructions: `# VeriSpec Change Impact Analysis
+
+When invoked with \`/verispec-impact\`:
+1. Inspect Git diff against the base branch (\`git diff HEAD~1\` or specified target).
+2. Trace modified source files to affected requirements and mapped test cases.
+3. Generate \`.verispec/impact.md\` with calculated Change Risk Score (0-100) and affected test lists.
+`,
+    },
+    {
+      id: 'verispec-regression',
+      name: 'verispec-regression',
+      description: 'Select and execute targeted regression tests based on change impact analysis.',
+      instructions: `# VeriSpec Targeted Regression
+
+When invoked with \`/verispec-regression\`:
+1. Read change impact data or run \`verispec regression --plan\` to see the selected test subset.
+2. Run \`verispec regression --run\` to execute only the impacted test cases, skipping unaffected suites.
+3. Review updated regression status in \`.verispec/regression.md\`.
+`,
+    },
+  ];
+
+  for (const skill of skills) {
+    const dir = path.join(baseSkillsDir, skill.id);
+    await fs.ensureDir(dir);
+    const content = `---
+name: ${skill.name}
+description: ${skill.description}
+---
+
+${skill.instructions}
+`;
+    await fs.writeFile(path.join(dir, 'SKILL.md'), content, 'utf-8');
+  }
 }
 
 /**
