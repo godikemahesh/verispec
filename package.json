@@ -54,10 +54,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/verispec/verispec"
+    "url": "https://github.com/godikemahesh/verispec"
   },
-  "homepage": "https://github.com/verispec/verispec#readme",
+  "homepage": "https://github.com/godikemahesh/verispec#readme",
   "bugs": {
-    "url": "https://github.com/verispec/verispec/issues"
+    "url": "https://github.com/godikemahesh/verispec/issues"
   }
 }
