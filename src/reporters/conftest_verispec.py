@@ -33,6 +33,7 @@ TRACEABILITY:
 import pytest
 import json
 import os
+import re
 import shutil
 import time
 from datetime import datetime, timezone
@@ -207,11 +208,37 @@ class VeriSpecStore:
         # Write report.md
         self._write_markdown_report(data)
 
-        # Ensure report.html exists (copy template if not present)
-        if not REPORT_HTML_FILE.exists():
-            template_html = TEMPLATES_DIR / "report.template.html"
-            if template_html.exists():
-                shutil.copy2(template_html, REPORT_HTML_FILE)
+        # Hydrate report.html with embedded test results
+        self._write_html_report(data)
+
+    def _write_html_report(self, data):
+        """Write report.html with embedded test results so it opens cleanly via file:// without CORS issues."""
+        template_html = TEMPLATES_DIR / "report.template.html"
+        source_html = template_html if template_html.exists() else (REPORT_HTML_FILE if REPORT_HTML_FILE.exists() else None)
+        if not source_html or not source_html.exists():
+            return
+
+        try:
+            content = source_html.read_text(encoding="utf-8")
+            data_json = json.dumps(data, indent=2, default=str)
+            script_tag = f'<script id="verispec-data">window.__VERISPEC_DATA__ = {data_json};</script>'
+
+            if '<script id="verispec-data">' in content:
+                content = re.sub(
+                    r'<script id="verispec-data">[\s\S]*?</script>',
+                    script_tag,
+                    content
+                )
+            elif '</head>' in content:
+                content = content.replace('</head>', f'  {script_tag}\n</head>')
+            elif '<body>' in content:
+                content = content.replace('<body>', f'<body>\n  {script_tag}')
+            else:
+                content = script_tag + '\n' + content
+
+            REPORT_HTML_FILE.write_text(content, encoding="utf-8")
+        except Exception:
+            pass
 
     def _write_markdown_report(self, data):
         s = data["summary"]

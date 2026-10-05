@@ -72,6 +72,8 @@ Risk: High
     assert.ok(fs.existsSync(path.join(tmpDir, '.verispec', 'rulebook.md')), 'rulebook.md should exist');
     assert.ok(fs.existsSync(path.join(tmpDir, '.verispec', 'reports', 'latest', 'results.json')), 'results.json should exist');
     assert.ok(fs.existsSync(path.join(tmpDir, '.verispec', 'reports', 'latest', 'report.html')), 'report.html should exist');
+    const reportHtmlContent = await fs.readFile(path.join(tmpDir, '.verispec', 'reports', 'latest', 'report.html'), 'utf-8');
+    assert.ok(reportHtmlContent.includes('window.__VERISPEC_DATA__'), 'report.html should have embedded data to bypass CORS on file://');
     assert.ok(fs.existsSync(path.join(tmpDir, '.verispec', 'reports', 'latest', 'report.md')), 'report.md should exist');
     assert.ok(fs.existsSync(path.join(tmpDir, 'tests', 'conftest.py')), 'tests/conftest.py should exist');
     assert.ok(fs.existsSync(path.join(tmpDir, 'CLAUDE.md')), 'CLAUDE.md should exist');

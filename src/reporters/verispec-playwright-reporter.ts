@@ -260,6 +260,30 @@ class VeriSpecPlaywrightReporter implements Reporter {
       fs.mkdirSync(LATEST_DIR, { recursive: true });
       fs.writeFileSync(RESULTS_FILE, JSON.stringify(this.results, null, 2));
       this.writeMarkdownReport();
+      this.writeHtmlReport();
+    } catch (e) {
+      // Silently handle write errors
+    }
+  }
+
+  private writeHtmlReport(): void {
+    const templatePath = path.join(TEMPLATES_DIR, 'report.template.html');
+    const sourcePath = fs.existsSync(templatePath) ? templatePath : (fs.existsSync(REPORT_HTML_FILE) ? REPORT_HTML_FILE : null);
+    if (!sourcePath) return;
+
+    try {
+      let content = fs.readFileSync(sourcePath, 'utf-8');
+      const scriptTag = `<script id="verispec-data">window.__VERISPEC_DATA__ = ${JSON.stringify(this.results, null, 2)};</script>`;
+      if (content.includes('<script id="verispec-data">')) {
+        content = content.replace(/<script id="verispec-data">[\s\S]*?<\/script>/, scriptTag);
+      } else if (content.includes('</head>')) {
+        content = content.replace('</head>', `  ${scriptTag}\n</head>`);
+      } else if (content.includes('<body>')) {
+        content = content.replace('<body>', `<body>\n  ${scriptTag}`);
+      } else {
+        content = scriptTag + '\n' + content;
+      }
+      fs.writeFileSync(REPORT_HTML_FILE, content, 'utf-8');
     } catch (e) {
       // Silently handle write errors
     }

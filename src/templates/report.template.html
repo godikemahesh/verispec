@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VeriSpec Test Report</title>
+  <script id="verispec-data">window.__VERISPEC_DATA__ = null;</script>
   <style>
     /* ─── VeriSpec Design System ─── */
     :root {
@@ -578,6 +579,56 @@
       .header-meta { flex-wrap: wrap; justify-content: center; }
       .pass-rate-ring { flex-direction: column; }
       .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    /* ─── Alert Banners ─── */
+    .alert-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--accent-blue);
+      border-left: 4px solid var(--accent-blue);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      margin: 20px 0;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      box-shadow: var(--shadow);
+    }
+
+    .alert-banner.warning {
+      border-color: var(--accent-yellow);
+      border-left-color: var(--accent-yellow);
+    }
+
+    .alert-icon {
+      font-size: 24px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .alert-content {
+      flex: 1;
+    }
+
+    .alert-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: var(--text-primary);
+    }
+
+    .alert-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .alert-code {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent-cyan);
     }
   </style>
 </head>
@@ -598,6 +649,29 @@
 </header>
 
 <main class="container">
+
+  <!-- Awaiting Execution Banner (shown if 0 tests have executed) -->
+  <div id="awaitingBanner" class="alert-banner" style="display:none">
+    <div class="alert-icon">⚡</div>
+    <div class="alert-content">
+      <div class="alert-title">Tests Awaiting Execution</div>
+      <div class="alert-desc">
+        Test scripts have been generated or updated in your project, but they have not been executed yet.
+        Run <code class="alert-code">pytest -v</code> or <code class="alert-code">npx verispec run</code> in your terminal to execute tests. Real-time test results, pass rates, and requirement coverage will stream into this dashboard.
+      </div>
+    </div>
+  </div>
+
+  <!-- Local File Notice (shown if file:// protocol blocks external fetch) -->
+  <div id="fileNotice" class="alert-banner warning" style="display:none">
+    <div class="alert-icon">⚠️</div>
+    <div class="alert-content">
+      <div class="alert-title">Local File Protocol (file://) Notice</div>
+      <div class="alert-desc">
+        Opening this dashboard via <code class="alert-code">file:///</code> prevents browser background fetch requests due to CORS security policies. VeriSpec test runners automatically embed snapshot data directly into this file on execution. Run your test suite with <code class="alert-code">pytest -v</code> or <code class="alert-code">npx verispec run</code> to populate this report.
+      </div>
+    </div>
+  </div>
 
   <!-- Summary Cards -->
   <div class="summary-grid" id="summaryGrid">
@@ -717,13 +791,23 @@
   let isRunning = true;
 
   async function loadResults() {
+    // 1. Try fetching live results.json (works when served via HTTP / dev server)
     try {
       const response = await fetch(RESULTS_PATH + '?t=' + Date.now());
-      if (!response.ok) return null;
-      return await response.json();
+      if (response.ok) {
+        const json = await response.json();
+        if (json) return json;
+      }
     } catch (e) {
-      return null;
+      // Fetch failed (e.g. browser CORS blocking local file:// requests)
     }
+
+    // 2. Fallback to inline embedded data (guaranteed to work when opened directly via file://)
+    if (window.__VERISPEC_DATA__) {
+      return window.__VERISPEC_DATA__;
+    }
+
+    return null;
   }
 
   function formatDuration(ms) {
@@ -746,6 +830,20 @@
     const errors = s.errors || 0;
     const rate = total > 0 ? ((passed / total) * 100).toFixed(1) : 0;
 
+    // Control banners based on execution state
+    const awaitingBanner = document.getElementById('awaitingBanner');
+    const fileNotice = document.getElementById('fileNotice');
+
+    const isIdle = total === 0 && (data.status === 'idle' || !data.status || data.status === 'awaiting');
+    if (awaitingBanner) {
+      awaitingBanner.style.display = isIdle ? 'flex' : 'none';
+    }
+
+    if (fileNotice) {
+      const isFileWithoutData = window.location.protocol === 'file:' && !window.__VERISPEC_DATA__;
+      fileNotice.style.display = isFileWithoutData ? 'flex' : 'none';
+    }
+
     // Header
     document.getElementById('runId').textContent = data.run_id || '—';
     document.getElementById('timestamp').textContent = data.timestamp_start ? new Date(data.timestamp_start).toLocaleString() : '—';
@@ -756,8 +854,12 @@
     if (data.status === 'running') {
       statusLabel.textContent = 'LIVE — Tests Running';
       liveDot.style.display = 'inline-block';
+    } else if (isIdle) {
+      statusLabel.textContent = 'AWAITING EXECUTION';
+      liveDot.style.display = 'none';
+      isRunning = false;
     } else {
-      statusLabel.textContent = data.status === 'passed' ? 'ALL PASSED' : data.status === 'failed' ? 'FAILURES DETECTED' : data.status.toUpperCase();
+      statusLabel.textContent = data.status === 'passed' ? 'ALL PASSED' : data.status === 'failed' ? 'FAILURES DETECTED' : (data.status || 'COMPLETE').toUpperCase();
       liveDot.style.display = 'none';
       isRunning = false;
     }
@@ -891,7 +993,20 @@
   // Poll for updates
   async function poll() {
     const data = await loadResults();
-    if (data) updateDashboard(data);
+    if (data) {
+      updateDashboard(data);
+    } else if (window.__VERISPEC_DATA__) {
+      updateDashboard(window.__VERISPEC_DATA__);
+    } else {
+      if (window.location.protocol === 'file:') {
+        const fileNotice = document.getElementById('fileNotice');
+        if (fileNotice) fileNotice.style.display = 'flex';
+        const awaitingBanner = document.getElementById('awaitingBanner');
+        if (awaitingBanner) awaitingBanner.style.display = 'flex';
+        const statusLabel = document.getElementById('statusLabel');
+        if (statusLabel) statusLabel.textContent = 'AWAITING EXECUTION';
+      }
+    }
     if (isRunning) setTimeout(poll, POLL_INTERVAL);
   }
 

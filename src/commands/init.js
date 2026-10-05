@@ -192,12 +192,22 @@ export async function initCommand(options) {
       { spaces: 2 }
     );
 
-    // 6b. Copy interactive report.html
+    // 6b. Copy interactive report.html with initialResults embedded
     const reportTemplateHtmlPath = path.resolve(bundledTemplatesDir, 'report.template.html');
     if (fs.existsSync(reportTemplateHtmlPath)) {
-      await fs.copy(
-        reportTemplateHtmlPath,
-        path.resolve(cwd, LATEST_REPORT_DIR, 'report.html')
+      let htmlContent = await fs.readFile(reportTemplateHtmlPath, 'utf-8');
+      const dataScript = `<script id="verispec-data">window.__VERISPEC_DATA__ = ${JSON.stringify(initialResults, null, 2)};</script>`;
+      if (htmlContent.includes('<script id="verispec-data">')) {
+        htmlContent = htmlContent.replace(/<script id="verispec-data">[\s\S]*?<\/script>/, dataScript);
+      } else if (htmlContent.includes('</head>')) {
+        htmlContent = htmlContent.replace('</head>', `  ${dataScript}\n</head>`);
+      } else {
+        htmlContent = dataScript + '\n' + htmlContent;
+      }
+      await fs.writeFile(
+        path.resolve(cwd, LATEST_REPORT_DIR, 'report.html'),
+        htmlContent,
+        'utf-8'
       );
     }
 
