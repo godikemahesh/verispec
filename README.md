@@ -14,7 +14,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/godikemahesh/verispec/releases"><img src="https://img.shields.io/badge/release-v0.1.0-2563eb.svg" alt="Release"></a>
+  <a href="https://www.npmjs.com/package/verispec"><img src="https://img.shields.io/npm/v/verispec.svg?color=cb3837" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/verispec"><img src="https://img.shields.io/npm/dm/verispec.svg" alt="npm downloads"></a>
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-059669.svg" alt="Node Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981.svg" alt="License"></a>
   <a href="#continuous-reporting-zero-setup"><img src="https://img.shields.io/badge/reporting-continuous-f59e0b.svg" alt="Continuous Reporting"></a>
