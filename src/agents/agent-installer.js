@@ -317,6 +317,7 @@ When the user types any of the following slash commands in the chatbox, execute 
 - **Continuous Reporting**: Reports in \`.verispec/reports/latest/\` update automatically on test execution. Never suggest running a separate report command.
 - **Defect Analysis**: If tests fail, run \`verispec analyze\` to generate \`.verispec/defects/BUG-*.md\` instead of modifying tests without analysis.
 - **Targeted Regression**: When code files change, use \`verispec impact\` and \`verispec regression\` rather than blindly running full suites.
+- **Single-Stage Execution & Human Review**: Execute ONLY the command invoked by the user. Do not automatically chain or trigger downstream commands. Always STOP and await user review after each stage.
 `;
 
   await fs.writeFile(cursorMdcPath, cursorContent, 'utf-8');
@@ -359,6 +360,16 @@ This repository uses the VeriSpec Quality Engineering framework.
 - Preserve ID chains: \`REQ-xxx\` -> \`TC-xxx\` -> \`test_xxx()\` -> \`BUG-xxx\`.
 - All tests must be native, runnable independently via standard runners (\`pytest\`, \`playwright\`).
 - Reports update continuously in \`.verispec/reports/latest/\`; do not attempt to run a separate report command.
+
+## Strict Single-Stage Execution & Human Review Gate (MANDATORY)
+- **NEVER CHAIN COMMANDS AUTOMATICALLY**: Execute ONLY the single slash command explicitly requested by the user.
+- **DO NOT AUTONOMOUSLY EXECUTE DOWNSTREAM STAGES**:
+  - After \`/verispec-rulebook\`: STOP. Do NOT run \`/verispec-strategy\`.
+  - After \`/verispec-strategy\`: STOP. Do NOT run \`/verispec-cases\`.
+  - After \`/verispec-cases\`: STOP. Do NOT run \`/verispec-implement\`.
+  - After \`/verispec-implement\`: STOP. Do NOT run tests.
+- Every stage produces an artifact that requires explicit human review and sign-off.
+- Always present your executive report, tell the user what command to run next when they are ready, and **STOP IMMEDIATELY**. Wait for the user to type the next command.
 `;
 
   await fs.writeFile(path.join(agentsRulesDir, 'verispec.md'), ruleContent, 'utf-8');
@@ -401,6 +412,7 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to es
 ## Operational Directives
 - **Do NOT run \`--help\` commands** or probe CLI options. Follow this procedure directly.
 - The command to execute is \`npx verispec rulebook\`.
+- **MANDATORY STOP & HUMAN REVIEW GATE**: Execute ONLY this single stage. When finished, present your executive summary and STOP. **DO NOT autonomously run \`/verispec-strategy\` or any downstream commands.** VeriSpec enforces human-in-the-loop review.
 
 ## Strict Scope Boundaries
 - **MUST COVER**:
@@ -437,12 +449,13 @@ Read \`.verispec/rulebook.md\` and inspect the workspace (e.g., \`package.json\`
   * **Medium / Low**: >= 90% Pass
   * **PR Gate**: Strict blocking on test regression
 
-### Step 4: Executive Report to User
+### Step 4: Executive Report & Stop Directive
 Present a clear, executive summary in your response:
 1. **Rulebook Status**: Confirm \`.verispec/rulebook.md\` is active and governing quality.
 2. **Quality Gates Table**: Display the active thresholds (Gate, Threshold, Scope).
 3. **Traceability Standards**: Confirm \`REQ-*\` -> \`TC-*\` -> \`test_*\` traceability is enforced.
-4. **Next Step**: Prompt the user to run \`/verispec-strategy\` to analyze the specification file (\`spec.md\`).
+4. **STOP AND AWAIT USER**: State clearly: *"Please review the Testing Constitution and quality gates above. When you are ready, run \`/verispec-strategy\` to formulate the test strategy."*
+5. **DO NOT AUTO-EXECUTE**: You MUST NOT run \`/verispec-strategy\` autonomously. Await explicit user command.
 `,
     },
     {
@@ -456,6 +469,7 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to ex
 ## Operational Directives
 - **Do NOT run \`--help\` commands**. Follow this procedure directly.
 - The command to execute is \`npx verispec strategy\`.
+- **MANDATORY STOP & HUMAN REVIEW GATE**: Execute ONLY this single stage. When finished, present your executive summary and STOP. **DO NOT autonomously run \`/verispec-cases\` or generate test cases.** VeriSpec enforces human-in-the-loop review.
 
 ## Strict Scope Boundaries
 - **MUST COVER**:
@@ -484,11 +498,12 @@ Execute:
 \`npx verispec strategy\`
 This parses \`spec.md\`, creates \`.verispec/strategy.md\`, updates \`.verispec/state/requirements.json\` with cryptographic hashes, and maps requirements to optimal test tiers (Unit, API, Integration, E2E, Security).
 
-### Step 4: Executive Report to User
+### Step 4: Executive Report & Stop Directive
 Read \`.verispec/strategy.md\` and present:
 1. **Requirements Breakdown**: Total requirements identified with risk ratings.
 2. **Test Tier Allocation**: Recommended distribution across Unit, API, Integration, E2E, and Security.
-3. **Next Step**: Recommend running \`/verispec-cases\` to generate executable test scenarios.
+3. **STOP AND AWAIT USER**: State clearly: *"Please review the test strategy and risk tier allocations above. When approved, run \`/verispec-cases\` to generate the test cases."*
+4. **DO NOT AUTO-EXECUTE**: You MUST NOT run \`/verispec-cases\` or generate test cases autonomously. Await explicit user command.
 `,
     },
     {
@@ -502,6 +517,7 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to de
 ## Operational Directives
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec cases\`.
+- **MANDATORY STOP & HUMAN REVIEW GATE**: Execute ONLY this single stage. When finished, present your summary and STOP. **DO NOT autonomously run \`/verispec-implement\` or create test code.** VeriSpec enforces human-in-the-loop review.
 
 ## Strict Scope Boundaries
 - **MUST COVER**:
@@ -531,8 +547,11 @@ Ensure every single test case has:
 - A stable deterministic ID: \`TC-<FEATURE>-<SEQ>\` (e.g., \`TC-AUTH-001\`).
 - A direct link to its parent requirement: \`REQ-*\`.
 
-### Step 4: Executive Report to User
-Summarize the test case counts per category and prompt the user to run \`/verispec-implement\` to turn these into executable test code.
+### Step 4: Executive Report & Stop Directive
+Summarize the test case counts per category.
+1. **Summary Table**: List the generated test cases by category (Functional, Negative, Boundary, Security).
+2. **STOP AND AWAIT USER**: State clearly: *"Please review the generated test cases in \`.verispec/cases/\`. When approved, run \`/verispec-implement\` to turn them into executable test code."*
+3. **DO NOT AUTO-EXECUTE**: You MUST NOT run \`/verispec-implement\` or generate code in \`tests/\` autonomously. Await explicit user command.
 `,
     },
     {
@@ -546,6 +565,7 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to tr
 ## Operational Directives
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec implement\`.
+- **MANDATORY STOP & HUMAN REVIEW GATE**: Execute ONLY this single stage. When finished, present your summary and STOP. **DO NOT autonomously run tests.** VeriSpec enforces human-in-the-loop review.
 
 ## Strict Scope Boundaries
 - **MUST COVER**:
@@ -575,8 +595,10 @@ Write idiomatic test code corresponding to each \`TC-*\`:
   * TypeScript (Playwright): \`test('TC-001: Description', async ({ page }) => { ... })\`
 - Ensure tests are completely native and runnable via standard runners (\`npm test\`, \`pytest\`).
 
-### Step 4: Executive Report to User
-List the generated test files and instruct the user to run \`/verispec-run\` to execute the suite.
+### Step 4: Executive Report & Stop Directive
+1. **Test Files Generated**: List the generated test files and test counts.
+2. **STOP AND AWAIT USER**: State clearly: *"Native executable tests have been generated in \`tests/\`. Review the test scripts, then run \`/verispec-run\` to execute the suite."*
+3. **DO NOT AUTO-EXECUTE**: You MUST NOT run tests autonomously. Await explicit user command.
 `,
     },
     {
@@ -590,6 +612,7 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to ex
 ## Operational Directives
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec run\`.
+- **MANDATORY STOP & HUMAN REVIEW GATE**: Execute the test run, present execution metrics, and STOP. **DO NOT autonomously diagnose or alter code.**
 
 ## Strict Scope Boundaries
 - **MUST COVER**:
@@ -612,12 +635,13 @@ VeriSpec reporters automatically write execution evidence to:
 - \`.verispec/reports/latest/report.html\`
 - \`.verispec/reports/latest/report.md\`
 
-### Step 3: Executive Report to User
+### Step 3: Executive Report & Stop Directive
 Summarize:
 - Total Passed, Failed, Skipped, and Duration.
 - Test Run ID (\`RUN-YYYYMMDD-SEQ\`).
-- If all pass: Recommend \`/verispec-trace\` to generate the traceability matrix.
-- If failures occur: Recommend \`/verispec-analyze\` to perform failure diagnosis.
+- If all pass: State *"All tests passed! Run \`/verispec-trace\` to compile the traceability matrix."*
+- If failures occur: State *"Failures detected. Run \`/verispec-analyze\` to perform root cause failure triage."*
+- **STOP AND AWAIT USER**: Await explicit user command. Do NOT auto-execute downstream commands.
 `,
     },
     {
@@ -631,6 +655,7 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to tr
 ## Operational Directives
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec analyze\`.
+- **MANDATORY STOP & HUMAN REVIEW GATE**: Perform triage, draft defect cards, present findings, and STOP.
 
 ## Strict Scope Boundaries
 - **MUST COVER**:
@@ -657,8 +682,10 @@ VeriSpec evaluates stack traces and code context, classifying each failure into:
 4. **TEST DATA PROBLEM**: Stale seed, foreign key collision -> drafts \`DIAG-<ID>.md\`.
 5. **SPEC DRIFT**: Intended behavior change, spec outdated -> drafts \`DIAG-<ID>.md\`.
 
-### Step 3: Executive Report to User
+### Step 3: Executive Report & Stop Directive
 Present the triage summary table and concrete remediation steps for any confirmed bugs or test repairs.
+State clearly: *"Review the defect cards above in \`.verispec/defects/\`. Fix the application defect or test defect, then run \`/verispec-run\` to verify the fix."*
+**DO NOT AUTO-EXECUTE**: Await explicit user command.
 `,
     },
     {
@@ -672,6 +699,7 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to bu
 ## Operational Directives
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec trace\`.
+- **MANDATORY STOP & HUMAN REVIEW GATE**: Compile matrix, present coverage score, and STOP.
 
 ## Strict Scope Boundaries
 - **MUST COVER**:
@@ -694,8 +722,9 @@ Verify:
 - Every \`TC-*\` links to executable test code and run evidence.
 - Identify any uncovered requirements (Coverage Gaps).
 
-### Step 3: Executive Report to User
+### Step 3: Executive Report & Stop Directive
 Display the requirement coverage score (%) and release readiness recommendation.
+**STOP**: All compliance data is compiled in \`.verispec/traceability.md\`. Await user command.
 `,
     },
     {
@@ -709,6 +738,7 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to in
 ## Operational Directives
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec impact\`.
+- **MANDATORY STOP & HUMAN REVIEW GATE**: Analyze impact, present blast radius, and STOP. **DO NOT auto-run regression tests.**
 
 ## Strict Scope Boundaries
 - **MUST COVER**:
@@ -731,8 +761,10 @@ Review:
 - Directly affected tests vs indirect blast radius.
 - Change Risk Score and risk tier (Low, Medium, High).
 
-### Step 3: Executive Report to User
-Display the affected test list and recommend running \`/verispec-regression\` to execute targeted tests.
+### Step 3: Executive Report & Stop Directive
+Display the affected test list and Change Risk Score.
+State clearly: *"Review the impact analysis above. When ready, run \`/verispec-regression\` to execute targeted regression tests."*
+**DO NOT AUTO-EXECUTE**: Do NOT run \`/verispec-regression\` autonomously. Await user command.
 `,
     },
     {
@@ -746,6 +778,7 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to ex
 ## Operational Directives
 - **Do NOT run \`--help\` commands**.
 - The commands to execute are \`npx verispec regression --plan\` and \`npx verispec regression --run\`.
+- **MANDATORY STOP**: Execute targeted regression, present report, and STOP.
 
 ## Strict Scope Boundaries
 - **MUST COVER**:
@@ -766,8 +799,9 @@ Run:
 \`npx verispec regression --run\`
 This executes only the impacted tests, saving CI/CD time while guaranteeing safety.
 
-### Step 3: Executive Report to User
+### Step 3: Executive Report & Stop Directive
 Summarize regression results and updated status in \`.verispec/regression.md\`.
+**STOP**: Targeted regression verification is complete. Await user command.
 `,
     },
   ];
