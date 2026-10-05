@@ -402,6 +402,17 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to es
 - **Do NOT run \`--help\` commands** or probe CLI options. Follow this procedure directly.
 - The command to execute is \`npx verispec rulebook\`.
 
+## Strict Scope Boundaries
+- **MUST COVER**:
+  1. Permanent testing principles, mandated test tiers, and execution SLAs.
+  2. Framework standards (e.g. pytest & Playwright web-first assertions, no hardcoded time.sleep).
+  3. Quality Gates & threshold enforcement (100% critical pass rate, overall >=95%, PR blockers).
+  4. Traceability identification schema (\`REQ-*\` -> \`TC-*\` -> \`test_*\` -> \`BUG-*\`).
+- **STRICTLY DO NOT COVER**:
+  - **DO NOT list specific feature endpoints (\`/api/...\`), database tables, product names, or prices.**
+  - **DO NOT write step-by-step user journeys or individual test scenarios.**
+  - The Rulebook is the PERMANENT CONSTITUTION. All feature-specific requirements and test inventories belong strictly to \`/verispec-strategy\` and \`/verispec-cases\`.
+
 ## Execution Procedure
 
 ### Step 1: Initialization Check
@@ -446,6 +457,17 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to ex
 - **Do NOT run \`--help\` commands**. Follow this procedure directly.
 - The command to execute is \`npx verispec strategy\`.
 
+## Strict Scope Boundaries
+- **MUST COVER**:
+  1. Extracting requirements from \`spec.md\` (or codebase) with stable \`REQ-<FEATURE>-<SEQ>\` IDs.
+  2. Risk classification matrix (Critical, High, Medium, Low).
+  3. Mapping each requirement to its optimal test tiers (Unit, API, Integration, E2E, Security).
+  4. Updating \`.verispec/state/requirements.json\` with cryptographic fingerprint hashes.
+- **STRICTLY DO NOT COVER**:
+  - **DO NOT write executable Python or TypeScript test scripts in \`tests/\`** (belongs to \`/verispec-implement\`).
+  - **DO NOT write detailed test steps or assertion code** (belongs to \`/verispec-cases\`).
+  - **DO NOT redefine quality gates or global rules** (already set in \`rulebook.md\`).
+
 ## Execution Procedure
 
 ### Step 1: Prerequisite Check
@@ -480,6 +502,15 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to de
 ## Operational Directives
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec cases\`.
+
+## Strict Scope Boundaries
+- **MUST COVER**:
+  1. Deriving structured test scenarios from \`.verispec/strategy.md\` into \`.verispec/cases/\` (\`functional.md\`, \`negative.md\`, \`boundary.md\`, \`security.md\`).
+  2. Assigning deterministic \`TC-<FEATURE>-<SEQ>\` IDs linked to parent \`REQ-*\`.
+  3. Defining Preconditions, Inputs, Execution Steps, and Expected Results.
+- **STRICTLY DO NOT COVER**:
+  - **DO NOT create test code files in \`tests/\`** (belongs to \`/verispec-implement\`).
+  - **DO NOT modify requirements or risk tiers** (governed by \`/verispec-strategy\`).
 
 ## Execution Procedure
 
@@ -516,6 +547,15 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to tr
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec implement\`.
 
+## Strict Scope Boundaries
+- **MUST COVER**:
+  1. Translating test scenarios from \`.verispec/cases/*.md\` into idiomatic, executable test files in \`tests/\`.
+  2. Decorating every test with VeriSpec metadata linking \`TC-*\` and \`REQ-*\`.
+  3. Ensuring test execution connects to \`.verispec/reports/latest/\` reporting hooks.
+- **STRICTLY DO NOT COVER**:
+  - **DO NOT invent new requirements or modify existing test case IDs.**
+  - **DO NOT run tests** (belongs to \`/verispec-run\`).
+
 ## Execution Procedure
 
 ### Step 1: Detect Project Test Framework
@@ -551,6 +591,14 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to ex
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec run\`.
 
+## Strict Scope Boundaries
+- **MUST COVER**:
+  1. Executing test suites via configured runners (\`pytest\`, \`playwright\`, \`npm test\`).
+  2. Streaming execution evidence to \`.verispec/reports/latest/results.json\` and \`report.html\`.
+  3. Reporting test pass/fail counts and run ID (\`RUN-YYYYMMDD-SEQ\`).
+- **STRICTLY DO NOT COVER**:
+  - **DO NOT modify test code or fix failures during execution.**
+
 ## Execution Procedure
 
 ### Step 1: Execute Tests
@@ -584,6 +632,16 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to tr
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec analyze\`.
 
+## Strict Scope Boundaries
+- **MUST COVER**:
+  1. Reading failure evidence from \`.verispec/reports/latest/results.json\`.
+  2. Classifying failures into the 5-tier failure model:
+     - PRODUCT DEFECT: Bug in source code -> draft \`.verispec/defects/BUG-<ID>.md\`.
+     - TEST DEFECT / ENVIRONMENT ISSUE / TEST DATA PROBLEM / SPEC DRIFT -> draft \`DIAG-<ID>.md\`.
+- **STRICTLY DO NOT COVER**:
+  - **DO NOT treat every failure as a product bug.**
+  - **DO NOT modify test code to force a pass without diagnostic classification.**
+
 ## Execution Procedure
 
 ### Step 1: Read Latest Execution Results
@@ -615,6 +673,13 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to bu
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec trace\`.
 
+## Strict Scope Boundaries
+- **MUST COVER**:
+  1. Compiling bidirectional matrix: \`REQ-*\` <-> \`TC-*\` <-> Test Code <-> Execution Evidence.
+  2. Highlighting any uncovered requirements (Coverage Gaps) in \`.verispec/traceability.md\`.
+- **STRICTLY DO NOT COVER**:
+  - **DO NOT run tests or modify requirements.**
+
 ## Execution Procedure
 
 ### Step 1: Generate Traceability Matrix
@@ -645,6 +710,13 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to in
 - **Do NOT run \`--help\` commands**.
 - The command to execute is \`npx verispec impact\`.
 
+## Strict Scope Boundaries
+- **MUST COVER**:
+  1. Analyzing \`git diff\` against requirements and test registry.
+  2. Computing blast radius and Change Risk Score (0-100) in \`.verispec/impact.md\`.
+- **STRICTLY DO NOT COVER**:
+  - **DO NOT execute tests** (belongs to \`/verispec-regression\`).
+
 ## Execution Procedure
 
 ### Step 1: Run Impact Analysis
@@ -674,6 +746,13 @@ You are acting as the VeriSpec Quality Engineering lead. Your objective is to ex
 ## Operational Directives
 - **Do NOT run \`--help\` commands**.
 - The commands to execute are \`npx verispec regression --plan\` and \`npx verispec regression --run\`.
+
+## Strict Scope Boundaries
+- **MUST COVER**:
+  1. Selecting only the impacted test cases based on \`.verispec/impact.md\`.
+  2. Executing targeted tests via \`--run\` and updating \`.verispec/regression.md\`.
+- **STRICTLY DO NOT COVER**:
+  - **DO NOT run full un-targeted regression suites when only localized changes occurred.**
 
 ## Execution Procedure
 

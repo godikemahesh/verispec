@@ -4,6 +4,13 @@
 > VeriSpec reads this file to determine testing depth, required coverage levels,
 > and quality gate thresholds. Customize it to match your team's standards.
 
+> [!IMPORTANT]
+> **Scope & Boundary (The Testing Constitution)**:
+> This document governs **HOW** the project tests (quality gates, SLAs, tool rules, pass/fail criteria).
+> - **DO NOT** list specific application features, endpoints (`/api/...`), database tables, or test scenarios here.
+> - Specific requirements, endpoints, and test allocations belong strictly in `.verispec/strategy.md` (`/verispec-strategy`).
+> - Step-by-step test cases belong strictly in `.verispec/cases/` (`/verispec-cases`).
+
 ---
 
 ## 1. Core Testing Principles
