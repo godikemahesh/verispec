@@ -396,10 +396,42 @@ Use this skill to guide the end-to-end quality engineering lifecycle for feature
       description: 'Define or review project testing rules, supported test types, tools, coding standards, and quality gates in .verispec/rulebook.md.',
       instructions: `# VeriSpec Quality Rules & Testing Constitution
 
-When invoked with \`/verispec-rulebook\`:
-1. Check if \`.verispec/rulebook.md\` already exists.
-2. If it does not exist, run \`verispec rulebook\` to generate the constitution from project configuration.
-3. Review and enforce quality gates (coverage minimums, critical requirement zero-failure rule, mandated test levels).
+You are acting as the VeriSpec Quality Engineering lead. Your objective is to establish, customize, and enforce the project's permanent Testing Constitution in \`.verispec/rulebook.md\`.
+
+## Operational Directives
+- **Do NOT run \`--help\` commands** or probe CLI options. Follow this procedure directly.
+- The command to execute is \`npx verispec rulebook\`.
+
+## Execution Procedure
+
+### Step 1: Initialization Check
+Check if \`.verispec/config.yaml\` exists in the project root.
+- If it does NOT exist, first run:
+  \`npx verispec init --agent antigravity\`
+  This scaffolds the \`.verispec/\` directory and detects the project test stack.
+
+### Step 2: Generate or Load the Rulebook
+Check if \`.verispec/rulebook.md\` exists.
+- If it does NOT exist, run:
+  \`npx verispec rulebook\`
+  This creates the default Testing Constitution with project-tailored quality standards.
+
+### Step 3: Inspect Project Context & Quality Gates
+Read \`.verispec/rulebook.md\` and inspect the workspace (e.g., \`package.json\`, \`pyproject.toml\`, or existing test files):
+- Confirm the project's test framework (e.g., Playwright, pytest, Vitest, Jest, Cypress).
+- Confirm mandated test tiers (Unit, API, Integration, E2E, Security).
+- Verify Quality Gate thresholds:
+  * **Critical Requirements**: 100% Pass (Zero failure tolerance)
+  * **High Risk**: >= 95% Pass
+  * **Medium / Low**: >= 90% Pass
+  * **PR Gate**: Strict blocking on test regression
+
+### Step 4: Executive Report to User
+Present a clear, executive summary in your response:
+1. **Rulebook Status**: Confirm \`.verispec/rulebook.md\` is active and governing quality.
+2. **Quality Gates Table**: Display the active thresholds (Gate, Threshold, Scope).
+3. **Traceability Standards**: Confirm \`REQ-*\` -> \`TC-*\` -> \`test_*\` traceability is enforced.
+4. **Next Step**: Prompt the user to run \`/verispec-strategy\` to analyze the specification file (\`spec.md\`).
 `,
     },
     {
@@ -408,11 +440,33 @@ When invoked with \`/verispec-rulebook\`:
       description: 'Analyze spec.md or codebase to derive risk-based test strategy and stable REQ-* IDs in .verispec/strategy.md.',
       instructions: `# VeriSpec Test Strategy
 
-When invoked with \`/verispec-strategy\`:
-1. Read the feature specification in \`spec.md\` and review testing policies in \`.verispec/rulebook.md\`.
-2. Extract all functional requirements and assign stable, deterministic IDs (\`REQ-<FEATURE>-<SEQ>\`).
-3. Assess business risk and technical complexity (Critical, High, Medium, Low).
-4. Run \`verispec strategy\` or generate \`.verispec/strategy.md\` mapping each requirement to appropriate test tiers (Unit, API, Integration, E2E, Security).
+You are acting as the VeriSpec Quality Engineering lead. Your objective is to examine the feature specification (\`spec.md\`) or existing codebase and generate a risk-weighted test strategy in \`.verispec/strategy.md\`.
+
+## Operational Directives
+- **Do NOT run \`--help\` commands**. Follow this procedure directly.
+- The command to execute is \`npx verispec strategy\`.
+
+## Execution Procedure
+
+### Step 1: Prerequisite Check
+Ensure \`.verispec/rulebook.md\` exists. If not, prompt the user to run \`/verispec-rulebook\` first.
+
+### Step 2: Analyze Requirements
+Inspect \`spec.md\` at the project root (or create a draft if none exists):
+- Extract all functional and non-functional requirements.
+- Ensure each requirement has a stable ID (\`REQ-<FEATURE>-<SEQ>\`, e.g., \`REQ-AUTH-001\`).
+- Assign a Risk Level (Critical, High, Medium, Low) based on business impact and failure severity.
+
+### Step 3: Run Strategy Generator
+Execute:
+\`npx verispec strategy\`
+This parses \`spec.md\`, creates \`.verispec/strategy.md\`, updates \`.verispec/state/requirements.json\` with cryptographic hashes, and maps requirements to optimal test tiers (Unit, API, Integration, E2E, Security).
+
+### Step 4: Executive Report to User
+Read \`.verispec/strategy.md\` and present:
+1. **Requirements Breakdown**: Total requirements identified with risk ratings.
+2. **Test Tier Allocation**: Recommended distribution across Unit, API, Integration, E2E, and Security.
+3. **Next Step**: Recommend running \`/verispec-cases\` to generate executable test scenarios.
 `,
     },
     {
@@ -421,14 +475,33 @@ When invoked with \`/verispec-strategy\`:
       description: 'Generate structured test cases with stable TC-* IDs across functional, negative, boundary, and security in .verispec/cases/.',
       instructions: `# VeriSpec Test Cases
 
-When invoked with \`/verispec-cases\`:
-1. Read \`.verispec/strategy.md\` to review requirements and assigned test tiers.
-2. Run \`verispec cases\` or generate markdown test case specifications into \`.verispec/cases/\`:
-   - \`functional.md\`: Core user journeys, happy paths, state transitions.
-   - \`negative.md\`: Invalid payloads, authentication/authorization failures, missing fields.
-   - \`boundary.md\`: Max string lengths, zero/negative quantities, concurrency limits.
-   - \`security.md\`: RBAC privilege escalation, injection, unauthorized access.
-3. Ensure every test case has a deterministic ID (\`TC-<FEATURE>-<SEQ>\`) referencing its parent \`REQ-*\`.
+You are acting as the VeriSpec Quality Engineering lead. Your objective is to derive structured, deterministic test cases from \`.verispec/strategy.md\` into \`.verispec/cases/\`.
+
+## Operational Directives
+- **Do NOT run \`--help\` commands**.
+- The command to execute is \`npx verispec cases\`.
+
+## Execution Procedure
+
+### Step 1: Prerequisite Check
+Verify that \`.verispec/strategy.md\` exists.
+
+### Step 2: Generate Test Cases
+Execute:
+\`npx verispec cases\`
+This scaffolds \`.verispec/cases/\` and generates four structured suites:
+- \`functional.md\`: Core happy paths, user journeys, state transitions.
+- \`negative.md\`: Validation errors, bad inputs, missing fields, 4xx responses.
+- \`boundary.md\`: Limits, max string lengths, empty collections, concurrency.
+- \`security.md\`: RBAC checks, injection protection, unauthorized access.
+
+### Step 3: Review ID Linking
+Ensure every single test case has:
+- A stable deterministic ID: \`TC-<FEATURE>-<SEQ>\` (e.g., \`TC-AUTH-001\`).
+- A direct link to its parent requirement: \`REQ-*\`.
+
+### Step 4: Executive Report to User
+Summarize the test case counts per category and prompt the user to run \`/verispec-implement\` to turn these into executable test code.
 `,
     },
     {
@@ -437,24 +510,66 @@ When invoked with \`/verispec-cases\`:
       description: 'Translate approved test cases into native executable test scripts in tests/ with VeriSpec metadata decorators.',
       instructions: `# VeriSpec Test Implementation
 
-When invoked with \`/verispec-implement\`:
-1. Read approved test scenarios from \`.verispec/cases/*.md\`.
-2. Generate clean, idiomatic native test code in the project's native runner:
-   - Python: \`pytest\` tests in \`tests/unit/\`, \`tests/api/\`, \`tests/integration/\`, \`tests/e2e/\` with \`@pytest.mark.verispec(id="TC-...", req="REQ-...")\`.
-   - TypeScript/JavaScript: \`Playwright\` specs in \`tests/e2e/\` or \`Jest\`/\`Vitest\` with VeriSpec annotations.
-3. Ensure all tests can be executed directly by native CLI tools without vendor lock-in.
+You are acting as the VeriSpec Quality Engineering lead. Your objective is to translate approved test cases in \`.verispec/cases/\` into native, executable test files in \`tests/\`.
+
+## Operational Directives
+- **Do NOT run \`--help\` commands**.
+- The command to execute is \`npx verispec implement\`.
+
+## Execution Procedure
+
+### Step 1: Detect Project Test Framework
+Read \`.verispec/config.yaml\` and project config (e.g., \`package.json\`, \`pyproject.toml\`).
+- Node/TS: Playwright, Jest, Vitest, Cypress.
+- Python: pytest.
+
+### Step 2: Run Implementation Command
+Execute:
+\`npx verispec implement\`
+This reads the test case definitions and scaffolds native test files.
+
+### Step 3: Generate Native Test Code
+Write idiomatic test code corresponding to each \`TC-*\`:
+- Include VeriSpec metadata decorators or annotations:
+  * Python: \`@pytest.mark.verispec(id="TC-001", req="REQ-001", tier="unit")\`
+  * TypeScript (Playwright): \`test('TC-001: Description', async ({ page }) => { ... })\`
+- Ensure tests are completely native and runnable via standard runners (\`npm test\`, \`pytest\`).
+
+### Step 4: Executive Report to User
+List the generated test files and instruct the user to run \`/verispec-run\` to execute the suite.
 `,
     },
     {
       id: 'verispec-run',
       name: 'verispec-run',
       description: 'Execute test suites and stream results continuously to the live HTML dashboard in .verispec/reports/latest/.',
-      instructions: `# VeriSpec Test Execution
+      instructions: `# VeriSpec Test Execution & Live Reporting
 
-When invoked with \`/verispec-run\`:
-1. Execute tests using \`verispec run\` or target specific tiers (\`verispec run --tier unit\`).
-2. Execution results stream continuously into \`.verispec/reports/latest/results.json\` and \`report.html\`.
-3. Provide execution summaries including total passed, failed, duration, and test run ID (\`RUN-YYYYMMDD-SEQ\`).
+You are acting as the VeriSpec Quality Engineering lead. Your objective is to execute the test suite and verify results via the live dashboard.
+
+## Operational Directives
+- **Do NOT run \`--help\` commands**.
+- The command to execute is \`npx verispec run\`.
+
+## Execution Procedure
+
+### Step 1: Execute Tests
+Run:
+\`npx verispec run\`
+Or execute the native runner configured in \`.verispec/config.yaml\` (e.g., \`npm test\` or \`pytest\`).
+
+### Step 2: Inspect Live Results
+VeriSpec reporters automatically write execution evidence to:
+- \`.verispec/reports/latest/results.json\`
+- \`.verispec/reports/latest/report.html\`
+- \`.verispec/reports/latest/report.md\`
+
+### Step 3: Executive Report to User
+Summarize:
+- Total Passed, Failed, Skipped, and Duration.
+- Test Run ID (\`RUN-YYYYMMDD-SEQ\`).
+- If all pass: Recommend \`/verispec-trace\` to generate the traceability matrix.
+- If failures occur: Recommend \`/verispec-analyze\` to perform failure diagnosis.
 `,
     },
     {
@@ -463,14 +578,29 @@ When invoked with \`/verispec-run\`:
       description: 'Perform 5-tier failure triage on test runs and generate structured defect or diagnostic cards in .verispec/defects/.',
       instructions: `# VeriSpec Failure Analysis & Defect Triage
 
-When invoked with \`/verispec-analyze\`:
-1. Read test failures from \`.verispec/reports/latest/results.json\`.
-2. Inspect application code, stack traces, and test assertions to classify the failure into one of 5 tiers:
-   - PRODUCT DEFECT: Bug in application code -> draft \`.verispec/defects/BUG-<ID>.md\`
-   - TEST DEFECT: Flaky test, incorrect assertion -> draft \`DIAG-<ID>.md\`
-   - ENVIRONMENT ISSUE: Timeout, network down, DB connection -> draft \`DIAG-<ID>.md\`
-   - TEST DATA PROBLEM: Stale seed data, foreign key conflict -> draft \`DIAG-<ID>.md\`
-   - SPEC DRIFT: Intended feature change, spec needs update -> draft \`DIAG-<ID>.md\`
+You are acting as the VeriSpec Quality Engineering lead. Your objective is to triage failed tests, determine root causes, and categorize failures into the 5-tier classification.
+
+## Operational Directives
+- **Do NOT run \`--help\` commands**.
+- The command to execute is \`npx verispec analyze\`.
+
+## Execution Procedure
+
+### Step 1: Read Latest Execution Results
+Read \`.verispec/reports/latest/results.json\` to identify failing test cases.
+
+### Step 2: Run VeriSpec Analysis
+Execute:
+\`npx verispec analyze\`
+VeriSpec evaluates stack traces and code context, classifying each failure into:
+1. **PRODUCT DEFECT**: Real bug in source code -> drafts \`.verispec/defects/BUG-<ID>.md\`.
+2. **TEST DEFECT**: Broken assertion, outdated test logic -> drafts \`DIAG-<ID>.md\`.
+3. **ENVIRONMENT ISSUE**: Network timeout, DB unreachable -> drafts \`DIAG-<ID>.md\`.
+4. **TEST DATA PROBLEM**: Stale seed, foreign key collision -> drafts \`DIAG-<ID>.md\`.
+5. **SPEC DRIFT**: Intended behavior change, spec outdated -> drafts \`DIAG-<ID>.md\`.
+
+### Step 3: Executive Report to User
+Present the triage summary table and concrete remediation steps for any confirmed bugs or test repairs.
 `,
     },
     {
@@ -479,10 +609,28 @@ When invoked with \`/verispec-analyze\`:
       description: 'Generate bidirectional requirement-to-evidence matrix in .verispec/traceability.md.',
       instructions: `# VeriSpec Bidirectional Traceability
 
-When invoked with \`/verispec-trace\`:
-1. Run \`verispec trace\` to compile the end-to-end traceability matrix.
-2. Verify all requirements (\`REQ-*\`) link to test cases (\`TC-*\`), executable test files, and latest execution evidence.
-3. Highlight coverage gaps (uncovered requirements) and compliance status.
+You are acting as the VeriSpec Quality Engineering lead. Your objective is to build the complete requirement-to-evidence compliance matrix.
+
+## Operational Directives
+- **Do NOT run \`--help\` commands**.
+- The command to execute is \`npx verispec trace\`.
+
+## Execution Procedure
+
+### Step 1: Generate Traceability Matrix
+Execute:
+\`npx verispec trace\`
+This cross-references \`.verispec/state/requirements.json\`, \`.verispec/cases/\`, test files, and \`.verispec/reports/latest/results.json\`.
+
+### Step 2: Inspect Output
+Read \`.verispec/traceability.md\`.
+Verify:
+- Every \`REQ-*\` links to one or more \`TC-*\`.
+- Every \`TC-*\` links to executable test code and run evidence.
+- Identify any uncovered requirements (Coverage Gaps).
+
+### Step 3: Executive Report to User
+Display the requirement coverage score (%) and release readiness recommendation.
 `,
     },
     {
@@ -491,10 +639,28 @@ When invoked with \`/verispec-trace\`:
       description: 'Analyze Git diffs against requirements and test registry to calculate blast radius and affected tests.',
       instructions: `# VeriSpec Change Impact Analysis
 
-When invoked with \`/verispec-impact\`:
-1. Inspect Git diff against the base branch (\`git diff HEAD~1\` or specified target).
-2. Trace modified source files to affected requirements and mapped test cases.
-3. Generate \`.verispec/impact.md\` with calculated Change Risk Score (0-100) and affected test lists.
+You are acting as the VeriSpec Quality Engineering lead. Your objective is to inspect Git diffs to compute the blast radius and determine affected tests.
+
+## Operational Directives
+- **Do NOT run \`--help\` commands**.
+- The command to execute is \`npx verispec impact\`.
+
+## Execution Procedure
+
+### Step 1: Run Impact Analysis
+Execute:
+\`npx verispec impact\`
+This analyzes \`git diff\`, maps modified source files to requirements and test cases, and calculates the Change Risk Score (0-100).
+
+### Step 2: Read Impact Report
+Inspect \`.verispec/impact.md\`.
+Review:
+- Changed files and affected requirements.
+- Directly affected tests vs indirect blast radius.
+- Change Risk Score and risk tier (Low, Medium, High).
+
+### Step 3: Executive Report to User
+Display the affected test list and recommend running \`/verispec-regression\` to execute targeted tests.
 `,
     },
     {
@@ -503,10 +669,26 @@ When invoked with \`/verispec-impact\`:
       description: 'Select and execute targeted regression tests based on change impact analysis.',
       instructions: `# VeriSpec Targeted Regression
 
-When invoked with \`/verispec-regression\`:
-1. Read change impact data or run \`verispec regression --plan\` to see the selected test subset.
-2. Run \`verispec regression --run\` to execute only the impacted test cases, skipping unaffected suites.
-3. Review updated regression status in \`.verispec/regression.md\`.
+You are acting as the VeriSpec Quality Engineering lead. Your objective is to execute only the tests affected by recent code changes.
+
+## Operational Directives
+- **Do NOT run \`--help\` commands**.
+- The commands to execute are \`npx verispec regression --plan\` and \`npx verispec regression --run\`.
+
+## Execution Procedure
+
+### Step 1: Review or Plan Regression
+Run:
+\`npx verispec regression --plan\`
+to preview the selected test subset based on impact analysis.
+
+### Step 2: Execute Targeted Regression
+Run:
+\`npx verispec regression --run\`
+This executes only the impacted tests, saving CI/CD time while guaranteeing safety.
+
+### Step 3: Executive Report to User
+Summarize regression results and updated status in \`.verispec/regression.md\`.
 `,
     },
   ];
