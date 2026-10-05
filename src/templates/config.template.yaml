@@ -1,0 +1,57 @@
+version: "1.0"
+
+project:
+  name: "{{project_name}}"
+  spec_path: "{{spec_path}}"
+  language: "{{language}}"
+  frameworks:
+{{#frameworks}}
+    - "{{.}}"
+{{/frameworks}}
+
+runners:
+  unit:
+    command: "{{unit_command}}"
+    framework: "{{unit_framework}}"
+    enabled: {{unit_enabled}}
+  api:
+    command: "{{api_command}}"
+    framework: "{{api_framework}}"
+    enabled: {{api_enabled}}
+  integration:
+    command: "{{integration_command}}"
+    framework: "{{integration_framework}}"
+    enabled: {{integration_enabled}}
+  e2e:
+    command: "{{e2e_command}}"
+    framework: "{{e2e_framework}}"
+    enabled: {{e2e_enabled}}
+  security:
+    command: "{{security_command}}"
+    framework: "{{security_framework}}"
+    enabled: {{security_enabled}}
+  performance:
+    command: "{{performance_command}}"
+    framework: "{{performance_framework}}"
+    enabled: {{performance_enabled}}
+
+quality_gates:
+  critical_req_coverage: 1.00
+  minimum_pass_rate: 0.95
+  allowed_critical_defects: 0
+  allowed_high_defects: 0
+  regression_safety_factor: 1.0
+
+reporting:
+  continuous: true
+  formats:
+    - html
+    - md
+    - json
+  output_dir: ".verispec/reports/latest"
+  archive_runs: true
+
+agents:
+  primary: "{{agent}}"
+  review_gates: true
+  auto_analyze_failures: true

@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VeriSpec Test Results",
+  "description": "Machine-readable test execution results continuously updated during test runs",
+  "type": "object",
+  "properties": {
+    "verispec_version": { "type": "string" },
+    "run_id": { "type": "string" },
+    "timestamp_start": { "type": "string", "format": "date-time" },
+    "timestamp_end": { "type": ["string", "null"], "format": "date-time" },
+    "status": { "type": "string", "enum": ["running", "passed", "failed", "error"] },
+    "execution_mode": { "type": "string", "enum": ["full", "tier", "targeted", "regression"] },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer" },
+        "passed": { "type": "integer" },
+        "failed": { "type": "integer" },
+        "skipped": { "type": "integer" },
+        "errors": { "type": "integer" },
+        "pass_rate": { "type": "number" },
+        "duration_ms": { "type": "number" }
+      }
+    },
+    "tiers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "integer" },
+          "passed": { "type": "integer" },
+          "failed": { "type": "integer" },
+          "skipped": { "type": "integer" },
+          "duration_ms": { "type": "number" },
+          "framework": { "type": "string" },
+          "command": { "type": "string" }
+        }
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "req_id": { "type": "string" },
+          "description": { "type": "string" },
+          "total_tests": { "type": "integer" },
+          "passed": { "type": "integer" },
+          "failed": { "type": "integer" },
+          "status": { "type": "string", "enum": ["verified", "unverified", "partial", "untested"] }
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tc_id": { "type": "string" },
+          "req_id": { "type": "string" },
+          "name": { "type": "string" },
+          "file": { "type": "string" },
+          "function": { "type": "string" },
+          "tier": { "type": "string" },
+          "priority": { "type": "string" },
+          "status": { "type": "string", "enum": ["passed", "failed", "skipped", "error"] },
+          "duration_ms": { "type": "number" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "error_message": { "type": ["string", "null"] },
+          "stack_trace": { "type": ["string", "null"] },
+          "stdout": { "type": ["string", "null"] },
+          "stderr": { "type": ["string", "null"] }
+        },
+        "required": ["tc_id", "name", "status", "timestamp"]
+      }
+    },
+    "quality_gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "threshold": { "type": "string" },
+          "actual": { "type": "string" },
+          "passed": { "type": "boolean" }
+        }
+      }
+    },
+    "defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "defect_id": { "type": "string" },
+          "tc_id": { "type": "string" },
+          "req_id": { "type": "string" },
+          "severity": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      }
+    }
+  },
+  "required": ["verispec_version", "run_id", "timestamp_start", "status", "summary", "tests"]
+}

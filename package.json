@@ -1,0 +1,63 @@
+{
+  "name": "verispec",
+  "version": "0.1.0",
+  "description": "VeriSpec — Spec-Driven Quality Engineering Framework. Turn your development spec into a traceable test strategy, executable test suite, regression map, and release evidence.",
+  "keywords": [
+    "testing",
+    "quality-engineering",
+    "test-strategy",
+    "test-automation",
+    "traceability",
+    "regression",
+    "spec-driven",
+    "ai-testing",
+    "pytest",
+    "playwright",
+    "k6"
+  ],
+  "author": "VeriSpec Contributors",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/cli.js",
+  "bin": {
+    "verispec": "./bin/verispec.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "assets/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node bin/verispec.js",
+    "test": "node --test tests/*.test.js",
+    "lint": "eslint src/",
+    "prepublishOnly": "npm test"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10",
+    "inquirer": "^9.2.12",
+    "js-yaml": "^4.1.0",
+    "mustache": "^4.2.0",
+    "ora": "^8.0.1",
+    "simple-git": "^3.22.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/verispec/verispec"
+  },
+  "homepage": "https://github.com/verispec/verispec#readme",
+  "bugs": {
+    "url": "https://github.com/verispec/verispec/issues"
+  }
+}

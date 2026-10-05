@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriSpec Test Report</title>
+  <style>
+    /* ─── VeriSpec Design System ─── */
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #111827;
+      --bg-card: #1a2233;
+      --bg-card-hover: #1f2a3e;
+      --border: #2a3548;
+      --border-light: #3a4558;
+      --text-primary: #e8edf5;
+      --text-secondary: #8b95a8;
+      --text-muted: #5a6478;
+      --accent-cyan: #06d6a0;
+      --accent-cyan-dim: rgba(6,214,160,0.15);
+      --accent-blue: #4cc9f0;
+      --accent-blue-dim: rgba(76,201,240,0.15);
+      --accent-red: #ef476f;
+      --accent-red-dim: rgba(239,71,111,0.15);
+      --accent-yellow: #ffd166;
+      --accent-yellow-dim: rgba(255,209,102,0.15);
+      --accent-purple: #7b68ee;
+      --accent-purple-dim: rgba(123,104,238,0.15);
+      --gradient-1: linear-gradient(135deg, #06d6a0 0%, #4cc9f0 100%);
+      --gradient-fail: linear-gradient(135deg, #ef476f 0%, #ff6b9d 100%);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.3);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    /* ─── Layout ─── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* ─── Header ─── */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--gradient-1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--bg-primary);
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text span { color: var(--accent-cyan); }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .header-meta code {
+      font-family: var(--font-mono);
+      background: var(--bg-card);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .status-badge {
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge.pass {
+      background: var(--accent-cyan-dim);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6,214,160,0.3);
+    }
+
+    .status-badge.fail {
+      background: var(--accent-red-dim);
+      color: var(--accent-red);
+      border: 1px solid rgba(239,71,111,0.3);
+    }
+
+    .status-badge.running {
+      background: var(--accent-blue-dim);
+      color: var(--accent-blue);
+      border: 1px solid rgba(76,201,240,0.3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* ─── Summary Cards ─── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 32px 0;
+    }
+
+    .summary-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-light);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+
+    .summary-card.total::before { background: var(--gradient-1); }
+    .summary-card.passed::before { background: var(--accent-cyan); }
+    .summary-card.failed::before { background: var(--accent-red); }
+    .summary-card.skipped::before { background: var(--accent-yellow); }
+    .summary-card.rate::before { background: var(--accent-purple); }
+    .summary-card.duration::before { background: var(--accent-blue); }
+
+    .summary-label {
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .summary-value {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-card.passed .summary-value { color: var(--accent-cyan); }
+    .summary-card.failed .summary-value { color: var(--accent-red); }
+    .summary-card.skipped .summary-value { color: var(--accent-yellow); }
+    .summary-card.rate .summary-value { color: var(--accent-purple); }
+
+    /* ─── Progress Ring ─── */
+    .pass-rate-ring {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      margin: 32px 0;
+    }
+
+    .ring-container {
+      position: relative;
+      width: 160px;
+      height: 160px;
+    }
+
+    .ring-container svg { transform: rotate(-90deg); }
+
+    .ring-bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 10;
+    }
+
+    .ring-fill {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s ease-out;
+    }
+
+    .ring-fill.pass { stroke: var(--accent-cyan); }
+    .ring-fill.fail { stroke: var(--accent-red); }
+
+    .ring-label {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .ring-label .rate { font-size: 36px; font-weight: 800; }
+    .ring-label .label { font-size: 12px; color: var(--text-secondary); }
+
+    .ring-stats { display: flex; flex-direction: column; gap: 12px; }
+
+    .ring-stat {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-sm);
+      min-width: 200px;
+    }
+
+    .ring-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+
+    .ring-dot.pass { background: var(--accent-cyan); }
+    .ring-dot.fail { background: var(--accent-red); }
+    .ring-dot.skip { background: var(--accent-yellow); }
+    .ring-dot.err { background: var(--accent-purple); }
+
+    /* ─── Section Titles ─── */
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 40px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 22px;
+      background: var(--gradient-1);
+      border-radius: 2px;
+    }
+
+    /* ─── Tables ─── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+
+    .data-table th {
+      background: var(--bg-secondary);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    .data-table tr:hover td {
+      background: var(--bg-card-hover);
+    }
+
+    .data-table code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--bg-secondary);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* ─── Requirement Coverage Bars ─── */
+    .req-row { cursor: pointer; }
+
+    .req-bar-container {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .req-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.8s ease-out;
+    }
+
+    .req-bar.pass { background: var(--accent-cyan); }
+    .req-bar.partial { background: var(--accent-yellow); }
+    .req-bar.fail { background: var(--accent-red); }
+
+    /* ─── Status Icons ─── */
+    .status-icon { font-size: 16px; }
+    .status-icon.pass { color: var(--accent-cyan); }
+    .status-icon.fail { color: var(--accent-red); }
+    .status-icon.skip { color: var(--accent-yellow); }
+
+    /* ─── Tier Cards ─── */
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .tier-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: var(--transition);
+    }
+
+    .tier-card:hover {
+      border-color: var(--border-light);
+      box-shadow: var(--shadow);
+    }
+
+    .tier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .tier-name {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+
+    .tier-rate {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .tier-bar-container {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    .tier-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.8s ease-out;
+    }
+
+    .tier-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* ─── Failure Details ─── */
+    .failure-card {
+      background: var(--bg-card);
+      border: 1px solid var(--accent-red-dim);
+      border-left: 4px solid var(--accent-red);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 12px 0;
+      transition: var(--transition);
+    }
+
+    .failure-card:hover {
+      box-shadow: var(--shadow);
+    }
+
+    .failure-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .failure-title {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .failure-meta {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .failure-tag {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    .failure-tag.req {
+      background: var(--accent-purple-dim);
+      color: var(--accent-purple);
+    }
+
+    .failure-tag.tier {
+      background: var(--accent-blue-dim);
+      color: var(--accent-blue);
+    }
+
+    .failure-tag.file {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .error-block {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.8;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      color: var(--accent-red);
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    /* ─── Quality Gates ─── */
+    .gate-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .gate-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .gate-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .gate-icon.pass {
+      background: var(--accent-cyan-dim);
+    }
+
+    .gate-icon.fail {
+      background: var(--accent-red-dim);
+    }
+
+    .gate-info .gate-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .gate-info .gate-detail {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* ─── Footer ─── */
+    .footer {
+      text-align: center;
+      padding: 32px 0;
+      margin-top: 48px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+
+    /* ─── Live Indicator ─── */
+    .live-dot {
+      width: 8px; height: 8px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      display: inline-block;
+      animation: livePulse 1.5s ease-in-out infinite;
+      margin-right: 6px;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(6,214,160,0.4); }
+      50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(6,214,160,0); }
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .header-inner { flex-direction: column; gap: 12px; }
+      .header-meta { flex-wrap: wrap; justify-content: center; }
+      .pass-rate-ring { flex-direction: column; }
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">V</div>
+      <div class="logo-text">Veri<span>Spec</span></div>
+    </div>
+    <div class="header-meta">
+      <span><span class="live-dot" id="liveDot"></span><span id="statusLabel">Loading...</span></span>
+      <code id="runId">—</code>
+      <span id="timestamp">—</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- Summary Cards -->
+  <div class="summary-grid" id="summaryGrid">
+    <div class="summary-card total">
+      <div class="summary-label">Total Tests</div>
+      <div class="summary-value" id="totalTests">0</div>
+    </div>
+    <div class="summary-card passed">
+      <div class="summary-label">Passed</div>
+      <div class="summary-value" id="passedTests">0</div>
+    </div>
+    <div class="summary-card failed">
+      <div class="summary-label">Failed</div>
+      <div class="summary-value" id="failedTests">0</div>
+    </div>
+    <div class="summary-card skipped">
+      <div class="summary-label">Skipped</div>
+      <div class="summary-value" id="skippedTests">0</div>
+    </div>
+    <div class="summary-card rate">
+      <div class="summary-label">Pass Rate</div>
+      <div class="summary-value" id="passRate">—</div>
+    </div>
+    <div class="summary-card duration">
+      <div class="summary-label">Duration</div>
+      <div class="summary-value" id="duration">—</div>
+    </div>
+  </div>
+
+  <!-- Pass Rate Ring -->
+  <div class="pass-rate-ring">
+    <div class="ring-container">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle class="ring-bg" cx="80" cy="80" r="70" />
+        <circle class="ring-fill pass" id="ringFill" cx="80" cy="80" r="70"
+          stroke-dasharray="439.8" stroke-dashoffset="439.8" />
+      </svg>
+      <div class="ring-label">
+        <div class="rate" id="ringRate">—</div>
+        <div class="label">Pass Rate</div>
+      </div>
+    </div>
+    <div class="ring-stats">
+      <div class="ring-stat">
+        <div class="ring-dot pass"></div>
+        <span>Passed: <strong id="ringPassed">0</strong></span>
+      </div>
+      <div class="ring-stat">
+        <div class="ring-dot fail"></div>
+        <span>Failed: <strong id="ringFailed">0</strong></span>
+      </div>
+      <div class="ring-stat">
+        <div class="ring-dot skip"></div>
+        <span>Skipped: <strong id="ringSkipped">0</strong></span>
+      </div>
+      <div class="ring-stat">
+        <div class="ring-dot err"></div>
+        <span>Errors: <strong id="ringErrors">0</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Requirement Coverage -->
+  <h2 class="section-title">Requirement Verification</h2>
+  <table class="data-table" id="reqTable">
+    <thead>
+      <tr>
+        <th>Requirement</th>
+        <th>Description</th>
+        <th>Tests</th>
+        <th>Passed</th>
+        <th>Failed</th>
+        <th>Coverage</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="reqTableBody">
+      <tr><td colspan="7" style="text-align:center; color:var(--text-muted)">Awaiting test results...</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Tier Breakdown -->
+  <h2 class="section-title">Test Tier Breakdown</h2>
+  <div class="tier-grid" id="tierGrid">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- Failed Tests -->
+  <h2 class="section-title" id="failuresTitle" style="display:none">Failed Tests</h2>
+  <div id="failuresContainer"></div>
+
+  <!-- Quality Gates -->
+  <h2 class="section-title">Quality Gates</h2>
+  <div class="gate-grid" id="gateGrid">
+    <!-- Populated by JS -->
+  </div>
+
+</main>
+
+<footer class="footer">
+  <p>Generated by <a href="https://github.com/verispec/verispec">VeriSpec</a> — Spec-Driven Quality Engineering</p>
+  <p>Report auto-refreshes every 3 seconds during active test runs.</p>
+</footer>
+
+<script>
+  /**
+   * VeriSpec Live Report Dashboard
+   * 
+   * Reads results.json and continuously updates the dashboard.
+   * Works both as a live view during test execution and as a
+   * static report after tests complete.
+   */
+
+  const POLL_INTERVAL = 3000; // 3 seconds
+  const RESULTS_PATH = './results.json';
+  let lastModified = null;
+  let isRunning = true;
+
+  async function loadResults() {
+    try {
+      const response = await fetch(RESULTS_PATH + '?t=' + Date.now());
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function formatDuration(ms) {
+    if (!ms || ms === 0) return '—';
+    if (ms < 1000) return ms + 'ms';
+    if (ms < 60000) return (ms / 1000).toFixed(1) + 's';
+    const mins = Math.floor(ms / 60000);
+    const secs = ((ms % 60000) / 1000).toFixed(0);
+    return mins + 'm ' + secs + 's';
+  }
+
+  function updateDashboard(data) {
+    if (!data) return;
+
+    const s = data.summary || {};
+    const total = s.total || 0;
+    const passed = s.passed || 0;
+    const failed = s.failed || 0;
+    const skipped = s.skipped || 0;
+    const errors = s.errors || 0;
+    const rate = total > 0 ? ((passed / total) * 100).toFixed(1) : 0;
+
+    // Header
+    document.getElementById('runId').textContent = data.run_id || '—';
+    document.getElementById('timestamp').textContent = data.timestamp_start ? new Date(data.timestamp_start).toLocaleString() : '—';
+
+    const statusLabel = document.getElementById('statusLabel');
+    const liveDot = document.getElementById('liveDot');
+
+    if (data.status === 'running') {
+      statusLabel.textContent = 'LIVE — Tests Running';
+      liveDot.style.display = 'inline-block';
+    } else {
+      statusLabel.textContent = data.status === 'passed' ? 'ALL PASSED' : data.status === 'failed' ? 'FAILURES DETECTED' : data.status.toUpperCase();
+      liveDot.style.display = 'none';
+      isRunning = false;
+    }
+
+    // Summary cards
+    document.getElementById('totalTests').textContent = total;
+    document.getElementById('passedTests').textContent = passed;
+    document.getElementById('failedTests').textContent = failed;
+    document.getElementById('skippedTests').textContent = skipped;
+    document.getElementById('passRate').textContent = rate + '%';
+    document.getElementById('duration').textContent = formatDuration(s.duration_ms);
+
+    // Ring
+    const ringFill = document.getElementById('ringFill');
+    const circumference = 2 * Math.PI * 70;
+    const offset = circumference - (rate / 100) * circumference;
+    ringFill.style.strokeDashoffset = offset;
+    ringFill.classList.toggle('fail', rate < 95);
+    ringFill.classList.toggle('pass', rate >= 95);
+
+    document.getElementById('ringRate').textContent = rate + '%';
+    document.getElementById('ringPassed').textContent = passed;
+    document.getElementById('ringFailed').textContent = failed;
+    document.getElementById('ringSkipped').textContent = skipped;
+    document.getElementById('ringErrors').textContent = errors;
+
+    // Requirements table
+    if (data.requirements) {
+      const tbody = document.getElementById('reqTableBody');
+      tbody.innerHTML = '';
+      for (const [key, req] of Object.entries(data.requirements)) {
+        const reqTotal = req.total_tests || 0;
+        const reqPassed = req.passed || 0;
+        const reqFailed = req.failed || 0;
+        const reqRate = reqTotal > 0 ? (reqPassed / reqTotal) * 100 : 0;
+        const statusClass = reqRate === 100 ? 'pass' : reqRate === 0 ? 'fail' : 'partial';
+        const statusText = reqRate === 100 ? '🟢 VERIFIED' : reqFailed > 0 ? '🔴 FAILED' : '🟡 PARTIAL';
+
+        tbody.innerHTML += `
+          <tr class="req-row">
+            <td><code>${req.req_id || key}</code></td>
+            <td>${req.description || '—'}</td>
+            <td>${reqTotal}</td>
+            <td>${reqPassed}</td>
+            <td>${reqFailed}</td>
+            <td>
+              <div class="req-bar-container">
+                <div class="req-bar ${statusClass}" style="width: ${reqRate}%"></div>
+              </div>
+            </td>
+            <td>${statusText}</td>
+          </tr>
+        `;
+      }
+    }
+
+    // Tier breakdown
+    if (data.tiers) {
+      const grid = document.getElementById('tierGrid');
+      grid.innerHTML = '';
+      for (const [name, tier] of Object.entries(data.tiers)) {
+        const tierTotal = tier.total || 0;
+        const tierPassed = tier.passed || 0;
+        const tierRate = tierTotal > 0 ? ((tierPassed / tierTotal) * 100).toFixed(1) : 0;
+        const barClass = tierRate >= 95 ? 'pass' : tierRate >= 80 ? 'partial' : 'fail';
+
+        grid.innerHTML += `
+          <div class="tier-card">
+            <div class="tier-header">
+              <span class="tier-name">${name}</span>
+              <span class="tier-rate" style="color: var(--accent-${barClass === 'pass' ? 'cyan' : barClass === 'partial' ? 'yellow' : 'red'})">${tierRate}%</span>
+            </div>
+            <div class="tier-bar-container">
+              <div class="tier-bar ${barClass}" style="width: ${tierRate}%"></div>
+            </div>
+            <div class="tier-meta">
+              <span>${tierPassed}/${tierTotal} passed</span>
+              <span>${formatDuration(tier.duration_ms)}</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Failures
+    const failedTests = (data.tests || []).filter(t => t.status === 'failed' || t.status === 'error');
+    const failTitle = document.getElementById('failuresTitle');
+    const failContainer = document.getElementById('failuresContainer');
+
+    if (failedTests.length > 0) {
+      failTitle.style.display = 'flex';
+      failContainer.innerHTML = failedTests.map(t => `
+        <div class="failure-card">
+          <div class="failure-header">
+            <span class="failure-title">✗ ${t.name || t.function || 'Unknown Test'}</span>
+            <span class="status-badge fail">${t.status}</span>
+          </div>
+          <div class="failure-meta">
+            ${t.tc_id ? `<span class="failure-tag req">${t.tc_id}</span>` : ''}
+            ${t.req_id ? `<span class="failure-tag req">${t.req_id}</span>` : ''}
+            ${t.tier ? `<span class="failure-tag tier">${t.tier}</span>` : ''}
+            ${t.file ? `<span class="failure-tag file">${t.file}</span>` : ''}
+          </div>
+          ${t.error_message ? `<div class="error-block">${escapeHtml(t.error_message)}${t.stack_trace ? '\n\n' + escapeHtml(t.stack_trace) : ''}</div>` : ''}
+        </div>
+      `).join('');
+    } else {
+      failTitle.style.display = 'none';
+      failContainer.innerHTML = '';
+    }
+
+    // Quality gates
+    if (data.quality_gates) {
+      const gateGrid = document.getElementById('gateGrid');
+      gateGrid.innerHTML = data.quality_gates.map(g => `
+        <div class="gate-card">
+          <div class="gate-icon ${g.passed ? 'pass' : 'fail'}">${g.passed ? '✓' : '✗'}</div>
+          <div class="gate-info">
+            <div class="gate-name">${g.name}</div>
+            <div class="gate-detail">Threshold: ${g.threshold} | Actual: ${g.actual}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // Poll for updates
+  async function poll() {
+    const data = await loadResults();
+    if (data) updateDashboard(data);
+    if (isRunning) setTimeout(poll, POLL_INTERVAL);
+  }
+
+  // Initial load
+  poll();
+</script>
+
+</body>
+</html>
