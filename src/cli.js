@@ -26,8 +26,8 @@ export function createCli() {
   program
     .name('verispec')
     .description('VeriSpec — Spec-Driven Quality Engineering Framework')
-    .version('0.1.5')
-    .addHelpText('before', getBannerText('0.1.5'));
+    .version('0.1.6')
+    .addHelpText('before', getBannerText('0.1.6'));
 
   // ─────────────────────────────────────────────
   // Core Workflow Commands

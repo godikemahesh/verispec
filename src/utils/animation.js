@@ -63,7 +63,7 @@ function colorizeWaveLine(line, offset, maxLen = 62) {
 /**
  * Generate static banner string with gradient
  */
-export function getBannerText(version = '0.1.5') {
+export function getBannerText(version = '0.1.6') {
   let out = '\n';
   LOGO_LINES.forEach((line, i) => {
     out += ' ' + colorizeWaveLine(line, i * 0.08) + '\n';
@@ -80,14 +80,14 @@ export function getBannerText(version = '0.1.5') {
 /**
  * Render the static styled logo banner
  */
-export function renderStaticBanner(version = '0.1.5') {
+export function renderStaticBanner(version = '0.1.6') {
   process.stdout.write(getBannerText(version));
 }
 
 /**
  * Play an interactive terminal wave animation during initialization
  */
-export async function playInitAnimation({ version = '0.1.5', durationMs = 900 } = {}) {
+export async function playInitAnimation({ version = '0.1.6', durationMs = 900 } = {}) {
   const isInteractive = Boolean(process.stdout.isTTY) && 
                         !process.env.CI && 
                         process.env.NODE_ENV !== 'test';
@@ -160,7 +160,7 @@ export async function playInitAnimation({ version = '0.1.5', durationMs = 900 } 
 /**
  * Display a futuristic hero completion card
  */
-export function renderSuccessHero({ version = '0.1.5', agents = ['all'] } = {}) {
+export function renderSuccessHero({ version = '0.1.6', agents = ['all'] } = {}) {
   const INNER_WIDTH = 72;
   const line = '═'.repeat(INNER_WIDTH);
   const agentList = Array.isArray(agents) ? agents.join(', ') : agents;

@@ -38,7 +38,7 @@ const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 
 export async function initCommand(options) {
   const cwd = process.cwd();
-  await playInitAnimation({ version: '0.1.5' });
+  await playInitAnimation({ version: '0.1.6' });
 
   if (isInitialized(cwd) && !options.force) {
     logger.warn('VeriSpec is already initialized in this project.');
@@ -295,7 +295,7 @@ export async function initCommand(options) {
 
     // 10. Summary Banner & Futuristic Hero Card
     renderSuccessHero({
-      version: '0.1.5',
+      version: '0.1.6',
       agents: installedAgents,
     });
 
