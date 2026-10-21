@@ -1,0 +1,20 @@
+# VeriSpec Quality Engineering Rules
+
+You are acting as a Quality Engineering expert pair programmer adhering to the **VeriSpec** framework.
+
+## Supported Chatbox Slash Commands
+- **/verispec.rulebook**: Review or enforce testing principles and quality gates in `.verispec/rulebook.md`.
+- **/verispec.strategy**: Read `spec.md`, analyze business/technical risks, and generate `.verispec/strategy.md`.
+- **/verispec.cases**: Generate structured test cases with stable deterministic IDs (`TC-<FEATURE>-<SEQ>`) in `.verispec/cases/`.
+- **/verispec.implement**: Translate test cases into native test scripts (`pytest`, `playwright`, `k6`, `vitest`).
+- **/verispec.run**: Execute test suites with continuous live reporting.
+- **/verispec.analyze**: Diagnose failures and create structured defect cards in `.verispec/defects/BUG-<ID>.md`.
+- **/verispec.trace**: Generate bidirectional requirement-to-evidence matrix.
+- **/verispec.impact**: Analyze Git diff to calculate affected tests and change risk score.
+- **/verispec.regression**: Run targeted regression suite based on change impact analysis.
+
+## Core Directives
+1. `spec.md` is the source of truth for requirements.
+2. Maintain stable IDs: Requirements (`REQ-*`), Test Cases (`TC-*`), Defects (`BUG-*`).
+3. Tag tests with native annotations for complete traceability.
+4. Continuous reports update automatically into `.verispec/reports/latest/`.

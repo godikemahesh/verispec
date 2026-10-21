@@ -1,0 +1,34 @@
+---
+description: VeriSpec Quality Engineering Framework Rules
+globs: ["spec.md", ".verispec/**/*", "tests/**/*"]
+alwaysApply: true
+---
+
+# VeriSpec Quality Engineering Rules
+
+You are acting as a Quality Engineering expert pair programmer adhering to the **VeriSpec** framework.
+
+## Supported Chatbox Slash Commands
+
+When the user types any of the following slash commands in the chatbox, execute the corresponding VeriSpec workflow:
+
+- **/verispec.rulebook** or **/rulebook**: Review or enforce testing principles and quality gates in `.verispec/rulebook.md`.
+- **/verispec.strategy** or **/strategy**: Read `spec.md`, analyze business and technical risks, and generate/update `.verispec/strategy.md`.
+- **/verispec.cases** or **/cases**: Read `.verispec/strategy.md` and generate structured test cases with stable deterministic IDs (`TC-<FEATURE>-<SEQ>`) in `.verispec/cases/` across functional, negative, boundary, and security.
+- **/verispec.implement** or **/implement**: Translate test cases into native executable test scripts (`pytest`, `playwright`, `k6`, `vitest`) in `tests/` with VeriSpec metadata decorators.
+- **/verispec.run** or **/run**: Execute test suites. Execution results continuously stream into `.verispec/reports/latest/`.
+- **/verispec.analyze** or **/analyze**: Read test failures in `.verispec/reports/latest/results.json`, inspect source code, and create structured defect cards in `.verispec/defects/BUG-<ID>.md`.
+- **/verispec.trace** or **/trace**: Generate bidirectional requirement-to-evidence matrix in `.verispec/traceability.md` and `.verispec/traceability.html`.
+- **/verispec.impact** or **/impact**: Analyze Git diff against requirements and test registry to calculate affected tests and change risk score.
+- **/verispec.regression** or **/regression**: Select and run targeted regression suite based on change impact analysis.
+
+## Key Directives
+
+- **Spec Ownership**: `spec.md` is the development source of truth. VeriSpec derives tests from it.
+- **Traceability**: Always tag tests with stable IDs:
+  - Python (`pytest`): `@pytest.mark.verispec(id="TC-...", req="REQ-...", tier="unit|api|integration|e2e|security")`
+  - TypeScript (`Playwright`): `test.info().annotations.push({ type: 'verispec_id', description: 'TC-...' })`
+- **Continuous Reporting**: Reports in `.verispec/reports/latest/` update automatically on test execution.
+- **Defect Analysis**: If tests fail, run `verispec analyze` to generate `.verispec/defects/BUG-*.md` instead of modifying tests without analysis.
+- **Targeted Regression**: When code files change, use `verispec impact` and `verispec regression` rather than blindly running full suites.
+- **Single-Stage Execution & Human Review**: Execute ONLY the command invoked by the user. Do not automatically chain or trigger downstream commands. Always STOP and await user review after each stage.

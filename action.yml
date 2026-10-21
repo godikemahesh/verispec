@@ -1,0 +1,29 @@
+name: 'VeriSpec Quality Gate & Impact Analysis'
+description: 'Spec-driven quality engineering: change impact analysis, targeted regression, and release verification.'
+author: 'godikemahesh'
+branding:
+  icon: 'check-circle'
+  color: 'purple'
+inputs:
+  command:
+    description: 'VeriSpec command to run (impact, regression, trace, run)'
+    required: false
+    default: 'impact'
+  spec:
+    description: 'Path to specification file'
+    required: false
+    default: 'spec.md'
+  tier:
+    description: 'Test tier to target (unit, api, e2e, security)'
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '>=18'
+    - name: Run VeriSpec
+      shell: bash
+      run: |
+        npx verispec ${{ inputs.command }}
