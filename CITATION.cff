@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use VeriSpec in your research, QA workflows, or engineering projects, please cite it as below."
+authors:
+  - name: "VeriSpec Contributors"
+title: "VeriSpec: Spec-Driven Quality Engineering Framework"
+version: 0.1.6
+date-released: 2026-10-21
+url: "https://github.com/godikemahesh/verispec"
+repository-code: "https://github.com/godikemahesh/verispec"
+keywords:
+  - "software-testing"
+  - "quality-engineering"
+  - "spec-driven-development"
+  - "traceability"
+  - "test-automation"
+  - "ai-coding-agents"
+license: MIT

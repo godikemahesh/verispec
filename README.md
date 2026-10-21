@@ -18,6 +18,7 @@
   <a href="https://www.npmjs.com/package/verispec"><img src="https://img.shields.io/npm/dm/verispec.svg" alt="npm downloads"></a>
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-059669.svg" alt="Node Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981.svg" alt="License"></a>
+  <a href="llms.txt"><img src="https://img.shields.io/badge/llms.txt-available-3b82f6.svg" alt="llms.txt"></a>
   <a href="#continuous-reporting-zero-setup"><img src="https://img.shields.io/badge/reporting-continuous-f59e0b.svg" alt="Continuous Reporting"></a>
   <a href="#ai-coding-agent-support-thin-adapters"><img src="https://img.shields.io/badge/agents-Claude%20%7C%20Copilot%20%7C%20Cursor%20%7C%20Antigravity-8b5cf6.svg" alt="AI Coding Agents"></a>
 </p>
@@ -27,10 +28,12 @@
   <a href="#installation--setup">Installation</a> •
   <a href="#verispec-workflow">Workflow</a> •
   <a href="#the-machine-readable-quality-graph">Quality Graph</a> •
+  <a href="#how-does-verispec-compare">Comparison</a> •
   <a href="#failure-classification-model">Failure Triage</a> •
   <a href="#when--how-to-use-each-command">Command Guide</a> •
   <a href="#continuous-reporting-zero-setup">Continuous Reporting</a> •
-  <a href="#ai-coding-agent-support-thin-adapters">AI Agents</a>
+  <a href="#ai-coding-agent-support-thin-adapters">AI Agents</a> •
+  <a href="#frequently-asked-questions">FAQ</a>
 </p>
 
 ---
@@ -205,6 +208,57 @@ VeriSpec is agent-agnostic. All agent configuration files act as **thin adapters
 ├── regression/                     # Targeted regression plans
 ├── state/                          # Deterministic Quality Graph registries (requirements, test map)
 └── templates/                      # Scaffolding templates
+```
+
+---
+
+## How Does VeriSpec Compare?
+
+| Capability | VeriSpec | Cucumber / BDD | GitHub Spec Kit | Traditional TestRail / Zephyr |
+|:---|:---:|:---:|:---:|:---:|
+| **Core Paradigm** | Spec-Driven Quality Engineering | Behavior Specification (Gherkin regex) | Spec-Driven Code Scaffolding | Manual Test Management & SaaS Silo |
+| **Input Source** | `spec.md` or brownfield code | Feature files (`.feature`) | `spec.md` | Manual web UI entry |
+| **AI Agent Native** | Claude Code, Cursor, Copilot, Antigravity, Windsurf | None (Manual glue step definitions) | Prompt templates | None / Proprietary integrations |
+| **Execution Framework** | Native (`pytest`, `playwright`, `k6`, `vitest`) | Gherkin runner + regex step mappings | None (Spec only) | External CI runners |
+| **Machine-Readable Graph** | Deterministic `.verispec/` Quality Graph | Flat feature files | Markdown documents | Cloud relational database |
+| **Failure Classification** | 5-way automated triage (Product, Test, Env, Data, Drift) | Pass / Fail boolean | None | Manual human inspection |
+| **Continuous Reporting** | Zero-setup live HTML + Markdown PR comments | Plugin required | None | SaaS sync required |
+| **Targeted Regression** | Git diff hunk impact analysis (`verispec impact`) | Manual tag filtering (`@smoke`) | None | Manual suite creation |
+
+---
+
+## Frequently Asked Questions
+
+### What is Spec-Driven Quality Engineering?
+Spec-Driven Quality Engineering (QE) is an engineering practice where automated test suites, quality gates, and release evidence are derived deterministically from functional specifications (`spec.md` or PRDs). Instead of tests being an afterthought or disconnected from requirements, VeriSpec links every requirement (`REQ-*`) directly to executable test cases (`TC-*`), native test files, and runtime assertions.
+
+### Does VeriSpec replace Playwright, Pytest, or Vitest?
+**No.** VeriSpec acts as the quality orchestration and traceability layer that coordinates and powers these native test runners. You write or generate idiomatic native tests in the frameworks you already know and love.
+
+### Can VeriSpec be used on brownfield (existing) projects?
+**Yes.** Running `verispec strategy --brownfield` discovers existing routes, endpoints, and architectural components across Python, Node.js, and other codebases, generating a comprehensive strategy even without a preexisting `spec.md`.
+
+### How does VeriSpec prevent false bug alerts from flaky tests?
+When a test fails, `verispec analyze` inspects the execution payload, status codes, assertion traces, and environment context to categorize the failure into one of five distinct classes:
+1. **Product Defect**: Code violates requirement assertions.
+2. **Test Defect**: Flaky selectors, bad mocks, or timing race conditions.
+3. **Environment Issue**: 502 Bad Gateway, network timeouts, or dead services.
+4. **Test Data Problem**: Missing seed data or expired tokens.
+5. **Spec Drift**: Feature intentionally updated without updating the test.
+
+---
+
+## Citation
+
+If you use VeriSpec in academic research, quality engineering workflows, or software tools, please cite:
+
+```bibtex
+@software{verispec2026,
+  author = {VeriSpec Contributors},
+  title = {VeriSpec: Spec-Driven Quality Engineering Framework},
+  year = {2026},
+  url = {https://github.com/godikemahesh/verispec}
+}
 ```
 
 ---

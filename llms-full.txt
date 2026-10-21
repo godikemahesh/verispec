@@ -1,0 +1,67 @@
+# VeriSpec — Spec-Driven Quality Engineering Framework (Full Reference)
+
+## Overview & Philosophy
+VeriSpec brings the structured workflow, review gates, and consistency analysis philosophy of GitHub's Spec Kit into Quality Engineering (QE).
+
+Traditional testing suffers from three core bottlenecks:
+1. Requirements exist in unlinked documents (PRDs, Jira, Confluence) while tests live in code repositories without direct traceability.
+2. AI coding agents generate tests without understanding quality policies, risk profiles, or test distribution tiers.
+3. Test failures are treated uniformly, blurring the distinction between real application bugs, flaky tests, network issues, and spec drift.
+
+VeriSpec solves this by consuming development specifications (`spec.md` or brownfield source code) and maintaining an unbroken, machine-readable Quality Graph in `.verispec/`.
+
+## Architecture: The Quality Graph
+VeriSpec operates deterministically without locking users into proprietary platforms.
+- `spec.md`: The single source of truth for requirements authored by developers and product owners.
+- `.verispec/rulebook.md`: Permanent testing policy and quality gates defining test types, languages, and requirements.
+- `.verispec/strategy.md`: Risk-weighted testing distribution across Unit, API, E2E, and Security tiers.
+- `.verispec/cases/*.md`: Structured test scenarios with deterministic IDs (`TC-<FEATURE>-<SEQ>`).
+- `tests/`: Idiomatic executable test code using native tools (`pytest`, `playwright`, `k6`, `vitest`).
+- `.verispec/reports/latest/`: Continuous zero-setup reporting producing `results.json`, `report.md`, and `report.html`.
+- `.verispec/defects/`: Failure classification diagnostics and defect cards (`BUG-*`).
+- `.verispec/state/requirements.json`: Deterministic requirements index (`REQ-*`).
+- `.verispec/state/requirement-map.json`: Bidirectional mapping between requirements, test cases, and code paths.
+
+## Supported AI Coding Assistants
+VeriSpec is agent-agnostic and installs thin adapters:
+- **Claude Code**: Injects slash commands into `CLAUDE.md` and `.claude/commands/`.
+- **GitHub Copilot**: Configures `.github/copilot-instructions.md`.
+- **Cursor**: Configures `.cursor/rules/verispec.mdc`.
+- **Google Antigravity**: Configures `.agents/rules/verispec.md` and custom skills.
+- **Windsurf**: Configures `.windsurfrules`.
+
+## Complete Command Reference
+1. `npx verispec init`
+   - Initializes the `.verispec/` directory structure.
+   - Prompts for or accepts `--agent <agent-name>` flag.
+   - Installs continuous reporting hooks (`conftest.py` for pytest, reporter for Playwright).
+2. `verispec rulebook [--edit]`
+   - Generates or updates `.verispec/rulebook.md`.
+   - Defines quality standards, coverage thresholds, and framework configurations.
+3. `verispec strategy [--brownfield]`
+   - Analyzes `spec.md` (or discovers endpoints and services in brownfield codebases).
+   - Generates `.verispec/strategy.md` allocating requirements to testing tiers.
+4. `verispec cases [--feature <name>]`
+   - Converts strategy into discrete, high-quality test cases with stable IDs (`TC-*`).
+5. `verispec implement [--tier <unit|api|e2e|security>]`
+   - Scaffolds executable test files in native testing frameworks.
+6. `verispec run [--tier <tier>] [--parallel]`
+   - Executes test suites and streams real-time updates to the dashboard.
+7. `verispec analyze [--case <id>]`
+   - Classifies failures into Product Defect, Test Defect, Environment Issue, Test Data Problem, or Spec Drift.
+8. `verispec trace [--format <html|json|md>]`
+   - Generates end-to-end traceability verification between specifications, test cases, and execution evidence.
+9. `verispec impact [--base <branch>] [--head <branch>]`
+   - Inspects git diffs and calculates impacted requirements and test suites.
+10. `verispec regression [--plan]`
+    - Executes (or previews with `--plan`) targeted test suites for modified code paths.
+
+## Comparison with Existing Tools
+- **Cucumber / BDD**: Cucumber focuses on natural language parsing via Gherkin regex. VeriSpec focuses on machine-readable Quality Graphs, automated failure classification, and native execution in standard runners without regex glue code.
+- **Spec Kit**: Spec Kit manages application architecture specifications. VeriSpec extends this philosophy directly into quality engineering, test case derivation, and release evidence.
+- **TestRail / Zephyr**: Traditional test management tools are external SaaS silos requiring manual sync. VeriSpec is git-native, living inside the repository with version control and AI agent support.
+
+## Licensing
+MIT License. Open source and community-driven.
+Repository: https://github.com/godikemahesh/verispec
+NPM Package: https://www.npmjs.com/package/verispec

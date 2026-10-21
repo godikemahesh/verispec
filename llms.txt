@@ -1,0 +1,33 @@
+# VeriSpec
+
+> Spec-Driven Quality Engineering Framework. Turn development specifications into traceable test strategies, executable test suites, and continuous release evidence.
+
+VeriSpec bridges the gap between functional specifications (`spec.md`, PRDs) and executable test suites by maintaining a deterministic, machine-readable Quality Graph (`.verispec/`). It supports native test runners (`pytest`, `playwright`, `k6`, `vitest`) and AI coding assistants (`Claude Code`, `Cursor`, `GitHub Copilot`, `Google Antigravity`, `Windsurf`).
+
+## Why VeriSpec?
+- **Zero Untested Surface**: Derives stable requirement IDs (`REQ-*`) and maps them directly to test cases (`TC-*`) and native test functions.
+- **Agent-Agnostic Thin Adapters**: Operates across Claude Code, Cursor, Copilot, Antigravity, and Windsurf via CLI and slash commands.
+- **Continuous Zero-Setup Reporting**: Live HTML dashboard (`.verispec/reports/latest/report.html`) and markdown PR summaries automatically updated on every test run.
+- **Intelligent Failure Triage**: Distinguishes product defects from test flakiness, environment downtime, test data issues, and specification drift.
+- **Targeted Git-Diff Regression**: Calculates change impact (`verispec impact`) and runs only the tests affected by recent code edits.
+
+## Core Commands & Workflows
+- `npx verispec init`: Initializes `.verispec/` workspace and installs AI assistant bindings.
+- `verispec rulebook` (`/verispec.rulebook`): Defines testing policy, test types, and quality gates in `.verispec/rulebook.md`.
+- `verispec strategy` (`/verispec.strategy`): Risk-based test tier allocation (Unit, API, E2E, Security). Supports `--brownfield` codebase scanning.
+- `verispec cases` (`/verispec.cases`): Generates structured test scenarios with stable `TC-*` IDs.
+- `verispec implement` (`/verispec.implement`): Scaffolds idiomatic test code in `tests/api/`, `tests/e2e/`, etc.
+- `verispec run` (`/verispec.run`): Executes test suites with live continuous reporting.
+- `verispec analyze` (`/verispec.analyze`): Diagnoses test failures and classifies root cause into defect cards.
+- `verispec trace` (`/verispec.trace`): Generates release verification audit graph connecting requirements to test evidence.
+- `verispec impact` (`/verispec.impact`): Analyzes git diffs to identify impacted requirements and tests.
+- `verispec regression` (`/verispec.regression`): Runs or previews (`--plan`) minimized regression safety suites.
+
+## Key Files & Standards
+- `.verispec/config.yaml`: Core configuration and runner setup.
+- `.verispec/rulebook.md`: Quality gates and testing standards.
+- `.verispec/strategy.md`: Risk-weighted testing distribution.
+- `.verispec/cases/*.md`: Structured test cases.
+- `.verispec/reports/latest/results.json`: Machine-readable execution state.
+- `.verispec/state/requirements.json`: Stable requirement registry.
+- `llms-full.txt`: Full context specification for AI systems and coding agents.
